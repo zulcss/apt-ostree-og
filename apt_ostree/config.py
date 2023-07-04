@@ -18,9 +18,12 @@ class Config(object):
         rootfs = cfg.get("rootfs", None)
         if rootfs is None:
             self.console.print("[red]Unable to parse rootfs config, using defaults.[/red]")
+        ostree = cfg.get("ostree", None)
+        if ostree is None:
+            self.console.print("[red]Unable to parse ostree config, using defaults.[/red]")
 
         return {
             "suite": rootfs.get("suite", "bookwork"),
-            "branch": rootfs.get("branch", "debian/bookworm"),
-            "repo": rootfs.get("repo", "ostree_repo"),
+            "branch": ostree.get("branch", "debian/bookworm"),
+            "repo": ostree.get("repo", "ostree_repo"),
         }

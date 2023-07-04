@@ -1,5 +1,6 @@
 ---
 rootfs:
   suite: bookworm
+ostree:
   branch: debian/bookworm
   repo: ostree_repo
