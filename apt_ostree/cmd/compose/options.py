@@ -3,6 +3,12 @@ import click
 from apt_ostree import constants
 
 
+def config(f):
+    return click.option(
+        "-C", "--config",
+        help="Config file"
+    )(f)
+
 def branch(f):
     return click.option(
         "-b", "--branch",
@@ -22,14 +28,6 @@ def packages(f):
     return click.option(
         "-P", "--packages",
         help="Extra packages to install",
-    )(f)
-
-
-def suite(f):
-    return click.option(
-        "--suite",
-        default="bookworm",
-        help="Debian version to bootstrap"
     )(f)
 
 

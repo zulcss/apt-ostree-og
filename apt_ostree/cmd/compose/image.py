@@ -5,6 +5,7 @@ import shutil
 
 import click
 
+from apt_ostree.config import Config
 from apt_ostree.cmd.compose import options
 from apt_ostree.compose import bootstrap
 from apt_ostree.compose import ostree
@@ -18,7 +19,7 @@ from apt_ostree import preflight
 
 @click.command(help="Compose an image")
 @click.pass_context
-@options.suite
+@options.config
 @options.mirror
 @click.option("--packages")
 @options.branch
@@ -32,7 +33,7 @@ from apt_ostree import preflight
               help="Size of the image")
 @options.arch
 def image(ctxt,
-          suite,
+          config,
           mirror,
           packages,
           branch,
@@ -41,6 +42,10 @@ def image(ctxt,
           image_size,
           arch):
     setup_log()
+
+    c = Config()
+    config = c.load_config(config)
+    suite = config.get("suite")
 
     if branch is None:
         branch = f"debian/{suite}"

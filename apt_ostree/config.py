@@ -15,5 +15,4 @@ class Config(object):
 
         return {
             "suite": cfg.get("suite", "bookwork")
-            "rootfs": self.workspace_dir.joinpath("rootfs.tar.gz")
         }
