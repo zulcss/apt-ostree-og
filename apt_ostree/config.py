@@ -15,4 +15,5 @@ class Config(object):
 
         return {
             "suite": cfg.get("suite", "bookwork")
+            "branch": cfg.get("branch", "debian/bookworm")
         }

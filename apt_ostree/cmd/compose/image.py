@@ -22,7 +22,6 @@ from apt_ostree import preflight
 @options.config
 @options.mirror
 @click.option("--packages")
-@options.branch
 @options.repo
 @click.option("--name",
               default="debian-ostree-qemu-uefi-amd64.img",
@@ -36,7 +35,6 @@ def image(ctxt,
           config,
           mirror,
           packages,
-          branch,
           repo,
           name,
           image_size,
@@ -46,10 +44,7 @@ def image(ctxt,
     c = Config()
     config = c.load_config(config)
     suite = config.get("suite")
-
-    if branch is None:
-        branch = f"debian/{suite}"
-        log_step(f"Branch not set setting it to {branch}")
+    branch = config.get("branch")
 
     workspace = constants.WORKSPACE
     with complete_step(f"Setting up workspace {constants.WORKSPACE}"):

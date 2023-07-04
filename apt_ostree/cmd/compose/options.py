@@ -9,13 +9,6 @@ def config(f):
         help="Config file"
     )(f)
 
-def branch(f):
-    return click.option(
-        "-b", "--branch",
-        help="ostree repo branch to create"
-    )(f)
-
-
 def repo(f):
     return click.option(
         "-r", "--repo",
