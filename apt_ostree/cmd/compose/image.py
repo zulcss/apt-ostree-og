@@ -20,9 +20,7 @@ from apt_ostree import preflight
 @click.command(help="Compose an image")
 @click.pass_context
 @options.config
-@options.mirror
 @click.option("--packages")
-@options.repo
 @click.option("--name",
               default="debian-ostree-qemu-uefi-amd64.img",
               help="name of image")
@@ -33,18 +31,20 @@ from apt_ostree import preflight
 @options.arch
 def image(ctxt,
           config,
-          mirror,
           packages,
-          repo,
           name,
           image_size,
           arch):
     setup_log()
 
+    # default mirror
+    mirror = "http://deb.debain.org/debian"
+
     c = Config()
     config = c.load_config(config)
     suite = config.get("suite")
     branch = config.get("branch")
+    repo = config.get("repo")
 
     workspace = constants.WORKSPACE
     with complete_step(f"Setting up workspace {constants.WORKSPACE}"):

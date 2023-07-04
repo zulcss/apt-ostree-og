@@ -14,6 +14,7 @@ class Config(object):
             self.console.print("Unable to parse configuration file, using defaults.")
 
         return {
-            "suite": cfg.get("suite", "bookwork")
-            "branch": cfg.get("branch", "debian/bookworm")
+            "suite": cfg.get("suite", "bookwork"),
+            "branch": cfg.get("branch", "debian/bookworm"),
+            "repo": cfg.get("repo", "ostree_repo"),
         }

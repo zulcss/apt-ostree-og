@@ -9,26 +9,10 @@ def config(f):
         help="Config file"
     )(f)
 
-def repo(f):
-    return click.option(
-        "-r", "--repo",
-        default="ostree_repo",
-        help="ostree repo to create"
-    )(f)
-
-
 def packages(f):
     return click.option(
         "-P", "--packages",
         help="Extra packages to install",
-    )(f)
-
-
-def mirror(f):
-    return click.option(
-        "--mirror",
-        default="http://deb.debian.org/debian",
-        help="Debian mirror to use"
     )(f)
 
 
