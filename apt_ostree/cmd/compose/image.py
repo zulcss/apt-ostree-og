@@ -23,9 +23,6 @@ from apt_ostree import preflight
 def image(ctxt, config):
     setup_log()
 
-    # default mirror
-    mirror = "http://deb.debain.org/debian"
-
     workspace = constants.WORKSPACE
     with complete_step(f"Setting up workspace {constants.WORKSPACE}"):
         workspace = constants.WORKSPACE
@@ -39,6 +36,7 @@ def image(ctxt, config):
         c = Config()
         config = c.load_config(config)
         suite = config.get("suite")
+        mirror = config.get("mirror")
         branch = config.get("branch")
         repo = config.get("repo")
         ostree_template = config.get("ostree_template")

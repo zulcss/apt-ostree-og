@@ -31,6 +31,7 @@ class Config(object):
 
         return {
             "suite": rootfs.get("suite", "bookwork"),
+            "mirror": rootfs.get("mirror", "http://deb.deian.org/debian"),
             "branch": ostree.get("branch", "debian/bookworm"),
             "repo": ostree.get("repo", "ostree_repo"),
             "ostree_template": ostree.get("template", "debian-ostree-commit.yaml"),
