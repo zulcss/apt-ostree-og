@@ -2,6 +2,9 @@ FROM debian:bullseye
 
 RUN apt-get update && \
     apt-get install -y \
+      git \
+      python3-pip \
+      python3-pbr \
       python3-rich \
       python3-apt \
       python3-click \
