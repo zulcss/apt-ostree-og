@@ -1,3 +1,4 @@
+import pathlib
 import sys
 
 from rich.console import Console
@@ -10,6 +11,9 @@ class Config(object):
     def load_config(self, config):
         cfg = {}
         try:
+            config = pathlib.Path(config)
+            config = config.joinpath("config.yaml")
+
             with open(config, "r") as f:
                 cfg = yaml.safe_load(f)
         except IOError:
@@ -21,9 +25,16 @@ class Config(object):
         ostree = cfg.get("ostree", None)
         if ostree is None:
             self.console.print("[red]Unable to parse ostree config, using defaults.[/red]")
+        image = cfg.get("image", None)
+        if image is None:
+            self.console.print("[red]Unable to parse image config, using defaults.[/red]")
 
         return {
             "suite": rootfs.get("suite", "bookwork"),
             "branch": ostree.get("branch", "debian/bookworm"),
             "repo": ostree.get("repo", "ostree_repo"),
+            "ostree_template": ostree.get("template", "debian-ostree-commit.yaml"),
+            "name": image.get("name", "debian-ostree-qemu-uefi-amd64.img"),
+            "size": image.get("size", "20G"),
+            "image_template": image.get("template", "debian-ostree-amd64.yaml")
         }

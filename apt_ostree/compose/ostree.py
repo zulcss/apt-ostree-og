@@ -21,35 +21,15 @@ def create_ostree_repo(rootfs, workspace, repo):
             f'ostree init --repo={workspace.joinpath(repo)} --mode=archive')
 
 
-def create_ostree_commit(workspace, branch, repo, arch, suite):
-    with complete_step("Setting up workspace for vm"):
-        log_step("Copying apt_ostree scripts to workspace")
-        script_dir = pathlib.Path(os.path.join(
-            os.path.dirname(__file__), "templates", "scripts"))
-        shutil.copytree(script_dir, workspace.joinpath("scripts"))
-
-        log_step("Copying apt_ostree actions to workspace")
-        action_dir = pathlib.Path(os.path.join(
-            os.path.dirname(__file__), "templates", "actions"))
-        shutil.copytree(action_dir, workspace.joinpath("actions"))
-
-        log_step("Copying apt_ostree overlay to workspace")
-        overlay_dir = pathlib.Path(os.path.join(
-            os.path.dirname(__file__), "templates", "overlay"))
-        shutil.copytree(overlay_dir, workspace.joinpath("overlay"))
-
-        log_step("Copying ostree templates configuration to workspace")
-        config = os.path.join(os.path.dirname(__file__),
-                              "templates", 'debian-ostree-commit.yaml')
-        template = workspace.joinpath("debian-ostree-commit.yaml")
-        shutil.copyfile(config, template)
-
+def create_ostree_commit(workspace, branch, repo, suite, template):
     with complete_step("Commiting rootfs to ostree"):
+
+        logging.info(template)
 
         subprocess.check_call(["debos",
                               "-v",
                                "-t", f"branch:{branch}",
                                "-t", f"repo:{repo}",
-                               "-t", f"architecture:{arch}",
+                               "-t", "architecture:amd64",
                                "-t", f"suite:{suite}",
                                template], cwd=workspace)

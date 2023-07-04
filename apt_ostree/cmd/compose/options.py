@@ -8,17 +8,3 @@ def config(f):
         "-C", "--config",
         help="Config file"
     )(f)
-
-def packages(f):
-    return click.option(
-        "-P", "--packages",
-        help="Extra packages to install",
-    )(f)
-
-
-def arch(f):
-    return click.option(
-        "--arch",
-        default="amd64",
-        help="Architecture to use"
-    )(f)

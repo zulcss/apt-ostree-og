@@ -10,7 +10,7 @@ from apt_ostree.log import complete_step
 from apt_ostree.log import log_step
 
 
-def run_mmdebstrap(suite, mirror, rootfs, workspace, packages, arch):
+def run_mmdebstrap(suite, mirror, rootfs, workspace):
     """Running mmdebstrap."""
     components = ["main", "non-free", "contrib"]
     with complete_step("Checking bootstrap configuraiton"):
@@ -28,17 +28,12 @@ def run_mmdebstrap(suite, mirror, rootfs, workspace, packages, arch):
         cmd = ["mmdebstrap", "--verbose"]
         with complete_step("Building mmdebstrap from configuration file"):
             log_step("Including addtional packages")
-            if packages:
-                constants.PACKAGES.append(packages)
             cmd += [f"--include={package}"
                     for package in constants.PACKAGES]
             log_step("Including additinal components...")
             cmd + [f"--component={component}"
                    for component in components]
             mirror = _create_mirror(workspace, suite)
-            log_step("Checking architecture")
-            if arch != "amd64":
-                cmd += [f"--architecture={arch}"]
             cmd += [suite, str(rootfs), str(mirror)]
 
             try:

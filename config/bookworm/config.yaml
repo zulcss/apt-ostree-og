@@ -4,3 +4,8 @@ rootfs:
 ostree:
   branch: debian/bookworm
   repo: ostree_repo
+  template: debian-ostree-commit.yaml
+image:
+  name: debian-ostree-qemu-uefi-amd64.img
+  size: 20G
+  template: debian-ostree-amd64.yaml
