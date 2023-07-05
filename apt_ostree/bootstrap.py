@@ -21,9 +21,10 @@ class Bootstrap(object):
 
         suite = config.get("suite")
         mirror = config.get("mirror")
+        packages = config.get("packages")
 
         self._check_suite(suite)
-        self._get_packages()
+        self._get_packages(packages)
         self._get_components()
 
         self.cmd += [suite, str(self.rootfs), mirror]
@@ -35,9 +36,11 @@ class Bootstrap(object):
             self.console.print(f"[red]Error[/red]Failed to run mmdebstrap: {ex}")
             raise ex
 
-    def _get_packages(self):
+    def _get_packages(self, packages):
         """Install additional packages"""
         self.console.print("Including addtional packages")
+        if packages:
+            constants.PACKAGES.append(packages)
         self.cmd += [f"--include={package}"
                     for package in constants.PACKAGES]
 
