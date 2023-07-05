@@ -5,6 +5,7 @@ import sys
 
 from rich.console import Console
 
+from apt_ostree.build import Build
 from apt_ostree.bootstrap import Bootstrap
 from apt_ostree import constants
 from apt_ostree.config import Config
@@ -18,6 +19,7 @@ class Image(object):
         self.workspace_dir = constants.WORKSPACE.joinpath("build/image")
         self.conf = Config()
         self.bootstrap = Bootstrap(self.workspace_dir)
+        self.build = Build(self.workspace_dir)
     
     def build(self, config):
         """Build an image."""
@@ -29,14 +31,14 @@ class Image(object):
         self.config = self.conf.load_config(config)
         self.bootstrap.mmdebstrap(self.config)
 
-        self._create_repo(self.config["repo"])
-        self._create_ostree_commit(
+        self.build.create_repo(self.config["repo"])
+        self.build.create_ostree_commit(
                 self.config["branch"],
                 self.config["repo"],
                 self.config["suite"],
                 self.config["ostree_template"]
         )
-        self._create_image(
+        self.build.create_image(
                 self.config["branch"],
                 self.config["repo"],
                 self.config["name"],
