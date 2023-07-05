@@ -9,6 +9,16 @@ import gi
 gi.require_version('OSTree', '1.0')
 from gi.repository import OSTree
 
+def ostree(*args, _input=None, **kwargs):
+    """Wrapper for ostree"""
+    args = list(args) + [f'--{k}={v}' for k, v in kwargs.items()]
+    print("ostree " + " ".join(args), file=sys.stderr)
+    subprocess.run(["ostree"] + args,
+                   encoding="utf8",
+                   stdout=sys.stderr,
+                   input=_input,
+                   check=True)
+
 class Ostree(object):
     def __init__(self, deployment_dir):
         self.console = Console()
