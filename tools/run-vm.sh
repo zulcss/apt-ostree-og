@@ -13,7 +13,7 @@ virt-install \
 	--ram 8096 \
 	--vcpus 4 \
 	--os-variant debiantesting \
-	--disk path=/var/tmp/apt-ostree/debian-ostree-qemu-uefi-amd64.img \
+	--disk path=/var/tmp/apt-ostree/build/image/debian-ostree-qemu-uefi-amd64.img \
 	--noautoconsole \
 	--check path_in_use=off \
 	--import
