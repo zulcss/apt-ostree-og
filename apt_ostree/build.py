@@ -19,6 +19,8 @@ class Build(object):
         """Create an ostree branch via a rootfs tarball"""
         self.console.print("Commiting rootfs to ostree")
         subprocess.check_call(["debos",
+                               "-c", "4",
+                               "-m", "16G",
                               "-v",
                                "-t", f"branch:{branch}",
                                "-t", f"repo:{repo}",
@@ -31,6 +33,8 @@ class Build(object):
         self.console.print("Createing ostree image")
         subprocess.check_call(["debos",
                                "-v",
+                               "-c", "4",
+                               "-m", "16G",
                                "-t", f"branch:{branch}",
                                "-t", f"repo:{repo}",
                                "-t", f"image:{image}",

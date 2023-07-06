@@ -1,4 +1,3 @@
-from time import sleep
 import shutil
 import subprocess
 import sys
@@ -11,12 +10,12 @@ from apt_ostree import constants
 from apt_ostree.config import Config
 from apt_ostree.ostree import ostree
 
-class Image(object):
+class Deployment(object):
     def __init__(self):
         self.console = Console()
         self.config = None
 
-        self.workspace_dir = constants.WORKSPACE.joinpath("build/image")
+        self.workspace_dir = constants.WORKSPACE.joinpath("build/repo")
         self.conf = Config()
         self.bootstrap = Bootstrap(self.workspace_dir)
         self.b = Build(self.workspace_dir)
@@ -37,12 +36,4 @@ class Image(object):
                 self.config["repo"],
                 self.config["suite"],
                 self.config["ostree_template"]
-        )
-        self.b.create_image(
-                self.config["branch"],
-                self.config["repo"],
-                self.config["name"],
-                self.config["size"],
-                self.config["suite"],
-                self.config["image_template"]
         )

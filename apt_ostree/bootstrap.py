@@ -40,7 +40,7 @@ class Bootstrap(object):
         """Install additional packages"""
         self.console.print("Including addtional packages")
         if packages:
-            constants.PACKAGES.append(packages)
+            constants.PACKAGES += packages
         self.cmd += [f"--include={package}"
                     for package in constants.PACKAGES]
 

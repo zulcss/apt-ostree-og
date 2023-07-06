@@ -1,6 +1,7 @@
 import click
 
 from . import image
+from . import deployment
 
 
 @click.group(help="Compands to build a container/image")
@@ -10,3 +11,4 @@ def compose(ctxt):
 
 
 compose.add_command(image.image)
+compose.add_command(deployment.deployment)

@@ -1,0 +1,164 @@
+#! /usr/bin/python3
+# Copyright (C) 2013, 2016 Collabora Ltd
+# Author: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+
+import os
+import pathlib
+import shutil
+import stat
+import hashlib
+
+def setup_boot (rootdir, bootdir, targetdir):
+    vmlinuz = None
+    initrd = None
+    dtbs = None
+    version = None
+
+    try:
+        os.mkdir(targetdir)
+    except OSError:
+        pass
+
+    for item in os.listdir (bootdir):
+        print("Processing " + item)
+        if item.startswith("vmlinuz"):
+            assert vmlinuz == None
+            vmlinuz = item
+            _, version = item.split("-", 1)
+        elif item.startswith("initrd.img") or item.startswith("initramfs"):
+            assert initrd == None
+            initrd = item
+        elif item.startswith("dtbs"):
+            assert dtbs == None
+            dtbs = os.path.join(bootdir, item)
+        else:
+            # Move all other artifacts as is
+            shutil.move (os.path.join(bootdir, item), targetdir)
+    assert vmlinuz != None
+
+    m = hashlib.sha256()
+    m.update(open (os.path.join (bootdir, vmlinuz), mode="rb").read())
+    if initrd != None:
+        m.update (open (os.path.join (bootdir, initrd), "rb").read())
+
+    csum = m.hexdigest()
+
+    os.rename (os.path.join (bootdir, vmlinuz),
+        os.path.join (targetdir, vmlinuz + "-" + csum))
+
+    if initrd != None:
+        os.rename (os.path.join (bootdir, initrd),
+          os.path.join (targetdir,
+                    initrd.replace ("initrd.img", "initramfs") + "-" + csum))
+
+def get_toplevel(path):
+    head, tail = os.path.split(path)
+    while head != '/' and  head != '':
+        head, tail = os.path.split(head)
+
+    return tail
+
+def sanitize_usr_symlinks(rootdir):
+# Replace symlinks from /usr pointing to /var with the actual file content as
+# var will be dropped
+    usrdir = os.path.join(rootdir, "usr")
+    for base, dirs, files in os.walk(usrdir):
+        for name in files:
+            p = os.path.join(base, name)
+
+            if not os.path.islink(p):
+                continue
+
+            # Resolve symlink relative to root
+            l = os.readlink(p)
+            if os.path.isabs(l):
+                target = os.path.join(rootdir, l[1:])
+            else:
+                target = os.path.join(base, l)
+
+            rel = os.path.relpath(target, rootdir)
+            # Keep symlinks if they're pointing to a location under /usr
+            if os.path.commonpath([target, usrdir]) == usrdir:
+                continue
+
+            toplevel = get_toplevel(rel)
+
+            # Sanitize links going into /var, potentially other location can
+            # be added later
+            if toplevel != 'var':
+                continue
+
+            os.remove(p)
+            os.link(target, p)
+
+def save_state(rootdir):
+    assert rootdir != None and rootdir != ""
+    # Create /usr/share/apt-ostree/state
+    # We dont have a ostree commit id yet, so just call it zero.
+    statedir = rootdir.joinpath("usr/share/apt-ostree/state")
+    if not statedir.exists():
+        statedir.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(
+        rootdir.joinpath("var/log/apt"), statedir.joinpath("0/apt"))
+    shutil.copy(
+        rootdir.joinpath("var/log/dpkg.log"), statedir.joinpath("0/dpkg.log"))
+    
+def convert_to_ostree(rootdir):
+    CRUFT = [ "boot/initrd.img", "boot/vmlinuz",
+              "initrd.img", "initrd.img.old",
+              "vmlinuz", "vmlinuz.old" ]
+    assert rootdir != None and rootdir != ""
+    # Empty /dev
+    shutil.rmtree(os.path.join (rootdir, "dev"))
+    os.mkdir(os.path.join (rootdir, "dev"), 0o755)
+
+    sanitize_usr_symlinks(rootdir)
+    # move /var/lib/dpkg
+    shutil.move(rootdir.joinpath("var/lib/dpkg"), 
+              rootdir.joinpath("usr/share/dpkg/database"))
+    # move /var/cache/debconf
+    shutil.move(rootdir.joinpath("var/cache/debconf"),
+                rootdir.joinpath("usr/share/debconf/cache"))
+    # Clean var but keep the directory as it's used as a mount point
+    shutil.rmtree(rootdir.joinpath("var"))
+    os.mkdir (os.path.join (rootdir, "var"), 0o755)
+
+    for c in CRUFT:
+        try:
+          os.remove(rootdir.joinpath(c))
+        except OSError:
+          pass
+
+    # Setup and split out etc
+    shutil.move(rootdir.joinpath("etc"), rootdir.joinpath("usr"))
+
+    rootdir.joinpath("usr/etc/fstab").write_text("")
+
+    try:
+        rootdir.joinpath("ostree").mkdir(parents=True, exist_ok=True)
+        rootdir.joinpath("sysroot").mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+
+    TOPLEVEL_LINKS = {
+        "media": "run/media",
+        "mnt": "var/mnt",
+        "opt": "var/opt",
+        "ostree": "sysroot/ostree",
+        "root": "var/roothome",
+        "srv": "var/srv",
+    }
+
+    fd = os.open(rootdir, os.O_DIRECTORY)
+    for l, t in TOPLEVEL_LINKS.items():
+        shutil.rmtree(rootdir.joinpath(l))
+        os.symlink(t, l, dir_fd=fd)
+
+if __name__ == '__main__':
+    rootdir = pathlib.Path(os.environ["ROOTDIR"])
+
+    setup_boot (rootdir,
+        os.path.join(rootdir, "boot"),
+        os.path.join(rootdir, "usr/lib/ostree-boot"))
+    save_state(rootdir)
+    convert_to_ostree (rootdir)

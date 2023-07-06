@@ -1,0 +1,8 @@
+{{- $architecture := or .architecture "amd64" -}}
+
+architecture: {{ $architecture }}
+
+actions:
+  - action: run
+    chroot: true
+    command: systemctl set-default graphical.target

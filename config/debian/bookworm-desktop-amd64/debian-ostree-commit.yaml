@@ -1,0 +1,92 @@
+{{- $architecture := or .architecture "amd64" -}}
+{{- $suite := or .suite "bookworm" -}}
+{{- $branch := or .branch "debian/bookworm" -}}
+{{- $repo := or .repo "ostree_repo" -}}
+
+# break this down into seperate actions/reciepes
+
+architecture: {{ $architecture }}
+
+actions:
+  - action: unpack
+    description: unpack rootfs tarball
+    file: rootfs.tar.gz
+
+  - action: overlay
+    description: install debian overlay
+    source: overlay/debian
+
+  - action: run
+    description: setup hostname
+    chroot: true
+    command: echo "localhost" > /etc/hostname
+
+  - action: run
+    chroot: true
+    command: echo root:root | chpasswd
+
+  - action: overlay
+    description: configure autlogin
+    source: overlay/auto-login
+
+  - action: overlay
+    source: overlay/desktop
+
+  - action: run
+    description: setup systemd-network
+    chroot: true
+    script: scripts/setup-networking.sh
+
+  - action: recipe
+    description: install apt-ostree dependencies
+    recipe: actions/apt-ostree.yaml
+
+  - action: recipe
+    recipe: actions/desktop.yaml
+
+  - action: recipe
+    description: install firstboot service
+    recipe: actions/firstboot.yaml
+
+  - action: overlay
+    description: configure ostree initramfs-tools
+    source: overlay/ostree
+ 
+  - action: apt
+    description: install kernel
+    recommends: true
+    packages:
+      - linux-image-amd64
+
+  - action: apt
+    description: install bootloader
+    recommends: true
+    packages:
+      - systemd-boot
+
+  - action: apt
+    description: install ostree
+    recommends: true
+    packages:
+      - ostree
+      - ostree-boot
+
+  - action: run
+    description: empty /etc/machine-id
+    chroot: false
+    command: truncate -s0 "${ROOTDIR}/etc/machine-id"
+
+  - action: run
+    description: prep
+    chroot: true
+    script: scripts/ostree-prep
+
+  - action: run
+    description: convert debian to ostree
+    chroot: false
+    script: scripts/convert-to-ostree
+
+  - action: ostree-commit
+    description: commit to ostree
+    repository: {{ $repo }}
+    branch: {{ $branch }}
