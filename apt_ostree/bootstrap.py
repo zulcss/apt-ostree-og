@@ -55,7 +55,7 @@ class Bootstrap(object):
         self.console.print("Checking for valid suite")
         if suite not in constants.SUITES:
             self.console.print(f"[red]Error[/red] {suite} is not a valid suite.")
-            self.console.print(f"Valid suites are {' '.join(suite)}")
+            self.console.print(f"Valid suites are {' '.join(constants.SUITES)}")
             sys.exit(-1)
         self.console.print(f"Found {suite}")
 

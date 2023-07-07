@@ -5,7 +5,7 @@ WORKSPACE = pathlib.Path("/var/tmp/apt-ostree")
 OSTREE_PATH = pathlib.Path("/ostree")
 
 # support debian verisons
-SUITES = ["bullseye", "bookworm"]
+SUITES = ["bookworm", "trixie"]
 
 # ADDITIONAL_PACKAGES
 PACKAGES = [

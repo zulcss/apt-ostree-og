@@ -1,0 +1,90 @@
+{{- $architecture := or .architecture "amd64" -}}
+{{- $suite := or .suite "trixie" -}}
+{{- $branch := or .branch "debian/trixie" -}}
+{{- $repo := or .repo "ostree_repo" -}}
+
+# break this down into seperate actions/reciepes
+
+architecture: {{ $architecture }}
+
+actions:
+  - action: unpack
+    description: unpack rootfs tarball
+    file: rootfs.tar.gz
+
+  - action: overlay
+    descfiption: install debian overlay
+    source: overlay/debian
+
+  - action: run
+    description: setup hostname
+    chroot: true
+    command: echo "localhost" > /etc/hostname
+
+  - action: run
+    chroot: true
+    command: echo root:root | chpasswd
+
+  - action: overlay
+    description: configure autlogin
+    source: overlay/auto-login
+
+  - action: run
+    description: setup systemd-network
+    chroot: true
+    script: scripts/setup-networking.sh
+
+  - action: recipe
+    description: install apt-ostree dependencies
+    recipe: actions/apt-ostree.yaml
+
+  - action: recipe
+    description: install firstboot service
+    recipe: actions/firstboot.yaml
+
+  - action: overlay
+    description: configure ostree initramfs-tools
+    source: overlay/ostree
+ 
+  - action: apt
+    description: install kernel
+    recommends: true
+    packages:
+      {{- if eq $architecture "amd64" }}
+      - linux-image-amd64
+      {{- else }}
+      - linux-image-arm64
+      {{- end }}
+
+  - action: apt
+    description: install bootloader
+    recommends: true
+    packages:
+      - systemd-boot
+
+  - action: apt
+    description: install ostree
+    recommends: true
+    packages:
+      - ostree
+      - ostree-boot
+
+  - action: run
+    description: empty /etc/machine-id
+    chroot: false
+    command: truncate -s0 "${ROOTDIR}/etc/machine-id"
+
+  - action: run
+    description: prep
+    chroot: true
+    script: scripts/ostree-prep
+
+  - action: run
+    description: convert debian to ostree
+    chroot: false
+    script: scripts/convert-to-ostree
+
+  - action: ostree-commit
+    description: commit to ostree
+    repository: {{ $repo }}
+    branch: {{ $branch }}
