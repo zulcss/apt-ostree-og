@@ -1,25 +1,27 @@
-import pathlib
 import os
-import shutil
-import pprint
 import sys
 
-import apt_pkg
 import click
 from rich.console import Console
-from apt_ostree.apt import Apt
-from apt_ostree.ostree import Ostree
+from apt_ostree.packages import Packages
 
 console = Console()
 
-exclude = [
-    "libc6"
-]
 
 @click.command(name="install", help="Install a debian pacakge")
 @click.pass_context
 @click.argument("packages", nargs=-1)
 def install(ctxt, packages):
+    if os.getuid() != 0:
+        console.print("You are not root!")
+        sys.exit(1)
+
+    if len(packages) == 0:
+        console.print("You mus specify at least one package")
+        sys.exit(1)
+
+    Packages().install(packages)
+    """
     workspace_dir = pathlib.Path("/var/tmp/apt-ostree")
     deployment_dir = workspace_dir.joinpath("deployment")
 
@@ -50,3 +52,4 @@ def install(ctxt, packages):
         apt.apt_install(deployment_dir, package)
 
     ostree.post_deployment()
+    """
