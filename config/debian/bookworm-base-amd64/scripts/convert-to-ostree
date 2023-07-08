@@ -147,6 +147,7 @@ def convert_to_ostree(rootdir):
         "ostree": "sysroot/ostree",
         "root": "var/roothome",
         "srv": "var/srv",
+        "usr/local": "../var/usrlocal",
     }
 
     fd = os.open(rootdir, os.O_DIRECTORY)
