@@ -31,6 +31,12 @@ class Packages(object):
                 sys.exit(-1)
         return self._apt_cache
 
+    def _apt_package(self, package):
+        try:
+            return self._cache()[package]
+        except KeyError:
+            self.console.print("Unable to find package")
+
     def install(self, packages):
         """Install package"""
         self._apt_cache = self._cache()
@@ -48,11 +54,22 @@ class Packages(object):
         self.console.print("Installing the following package candidates")
         for package in self.packages:
             ver = self.get_version(package)
-            self.console.print(f"{package} {ver}")
-
-            self.console.print(f"Installing {package}")
+            self.console.print(f"Installing {package} ({ver})")
             self.apt_install(package)
+            self.post_install(package)
+
         self.ostree.post_deployment()
+
+    def post_install(self, package):
+        cache = apt.Cache(rootdir=self.deployment_dir)
+        pkg = cache[package].installed
+
+        pkgs = [
+            d[0].name
+            for d in pkg.get_dependencies("Depends", "PreDepends", "Recommends")
+        ]
+        self.console.print(pkgs)
+
 
     def get_version(self, package):
         return self._apt_cache[package].candidate.version
