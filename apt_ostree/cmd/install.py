@@ -4,6 +4,7 @@ import sys
 import click
 from rich.console import Console
 from apt_ostree.packages import Packages
+from apt_ostree.utils import run_command
 
 console = Console()
 
@@ -21,35 +22,4 @@ def install(ctxt, packages):
         sys.exit(1)
 
     Packages().install(packages)
-    """
-    workspace_dir = pathlib.Path("/var/tmp/apt-ostree")
-    deployment_dir = workspace_dir.joinpath("deployment")
 
-    if not deployment_dir.exists():
-        deployment_dir.mkdir(parents=True, exist_ok=True)
-
-    if len(packages) == 0:
-        console.print("Please specift at least one packafe")
-        sys.exit(1)
-
-    cache = apt_pkg.Cache()
-
-    apt = Apt()
-    ostree = Ostree(deployment_dir)
-
-    deployment_dir = ostree.deployment()
-    apt.apt_update(deployment_dir)
-
-    pkgs = []
-    # Get non-installed packages
-    for package in packages:
-        pkg = apt.get_package(package)
-        if pkg and not pkg.candidate.is_installed:
-            pkgs.append(pkg)
-        else:
-            console.print(f"[red]{package}[/red] is already installed.")
-    
-        apt.apt_install(deployment_dir, package)
-
-    ostree.post_deployment()
-    """

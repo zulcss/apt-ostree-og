@@ -1,12 +1,13 @@
 import sys
-
+import subprocess
 import apt
 
 from rich.console import Console
 
 from apt_ostree.constants import WORKSPACE
 from apt_ostree.ostree import Ostree
-from apt_ostree.utils import run_command
+from apt_ostree.ostree import ostree
+from apt_ostree.utils import run_sandbox_command
 
 class Packages(object):
     def __init__(self):
@@ -51,6 +52,7 @@ class Packages(object):
 
             self.console.print(f"Installing {package}")
             self.apt_install(package)
+        self.ostree.post_deployment()
 
     def get_version(self, package):
         return self._apt_cache[package].candidate.version
@@ -65,7 +67,8 @@ class Packages(object):
         return pkgs
 
     def apt_update(self):
-        run_command(["apt-get", "update"], self.deployment_dir)
+        self.console.print("Running apt-get update")
+        run_sandbox_command(["apt-get", "update"], self.deployment_dir)
 
     def apt_install(self, package):
-        run_command(["apt-get", "install", "-y", package], self.deployment_dir)
+        run_sandbox_command(["apt-get", "install", "-y", package], self.deployment_dir)

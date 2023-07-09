@@ -3,22 +3,39 @@ import sys
 
 from rich.console import Console
 
-from apt_ostree import constants
-from apt_ostree.log import log_step
-
 import subprocess
 
 console = Console()
 
-def run_command(args, rootfs):
-    cmd = [
-     "bwrap",
-     "--die-with-parent",
-     "--bind", rootfs, "/",
-     "--dev", "/dev",
-     "--proc", "/proc",
-     "--ro-bind", "/sys", "/sys"]
-    cmd += args
-    subprocess.run(cmd, check=True)
+def run_sandbox_command(args, rootfs):
+    try:
+        cmd = [
+            "bwrap",
+            "--die-with-parent",
+            "--bind", rootfs, "/",
+            "--dev", "/dev",
+            "--proc", "/proc",
+            "--ro-bind", "/sys", "/sys"]
+        cmd += args
+        subprocess.run(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+            encoding="utf8",
+            check=False)
+    except subprocess.CalledProcessError as error:
+        console.print(error)
+
+def run_command(cmd):
+    try:
+        return subprocess.run(
+            cmd,
+             stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+            encoding="utf8",
+            check=False)
+    except subprocess.CalledProcessError as error:
+        console.print(error)
+
 
         
