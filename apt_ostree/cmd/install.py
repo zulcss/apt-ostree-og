@@ -23,3 +23,7 @@ def install(ctxt, packages):
 
     Packages().install(packages)
 
+    self.console.print("Don't forget to reboot for changes to take affect!")
+    if click.confirm("Do you want to reboot now?"):
+        run-command(["shutdown", "-r", "now"])
+

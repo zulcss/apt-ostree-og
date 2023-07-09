@@ -81,7 +81,7 @@ class Ostree(object):
         self.console.print("Saving state information")
         statedir = self.deployment_dir.joinpath("usr/share/apt-ostree/state")
         shutil.copytree(
-            self.rootdir.joinpath("var/log/apt"), statedir.joinpath("0/apt"))
+            self.rootdir.joinpath("var/log/apt"), statedir.joinpath("0/apt")
         )
         shutil.copy(
             self.rootdir.joinpath("var/log/dpkg.log"), statedir.joinpath("0/dpkg.log")
