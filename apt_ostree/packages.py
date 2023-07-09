@@ -64,10 +64,8 @@ class Packages(object):
                 ver = self.get_version(package)
                 self.console.print(f"Installing {package} ({ver})")
                 self.apt_install(package)
-                self.post_install(package)
 
             self.ostree.post_deployment()
-                self.post_install(package)
 
 
     def show_dependencies(self, all_deps, deps, predeps): 
@@ -138,10 +136,6 @@ class Packages(object):
                           str(self._apt_package(package).candidate.origins[0].origin),
                           str(self._apt_package(package).candidate.size))
         self.console.print(table)
-
-
-    def post_install(self, package):
-        pass
 
     def get_version(self, package):
         return self._apt_cache[package].candidate.version

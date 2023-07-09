@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 import shutil
+import pathlib
 import subprocess
 import sys
 
@@ -26,6 +27,7 @@ class Ostree(object):
     def __init__(self, deployment_dir):
         self.console = Console()
         self.deployment_dir = deployment_dir
+        self.rootdir = pathlib.Path("/")
 
     def deployment(self):
         sysroot = OSTree.Sysroot()
@@ -75,6 +77,16 @@ class Ostree(object):
         now = datetime.now()
         now = now.strftime("%Y%m%d%H%M%S")
         branch = f"debian/bookworm-local/{now}"
+
+        self.console.print("Saving state information")
+        statedir = self.deployment_dir.joinpath("usr/share/apt-ostree/state")
+        shutil.copytree(
+            self.rootdir.joinpath("var/log/apt"), statedir.joinpath("0/apt"))
+        )
+        shutil.copy(
+            self.rootdir.joinpath("var/log/dpkg.log"), statedir.joinpath("0/dpkg.log")
+        )
+
         self.console.print(f"Committing new branch to {branch}")
         run_command(
             ["ostree", "commit", f"--branch={branch}", str(self.deployment_dir)])
@@ -83,4 +95,6 @@ class Ostree(object):
             ["ostree", "admin", "deploy", branch, "--retain-rollback", "--karg-proc-cmdline"])
         self.console.print(f"Updating grub")
         run_command(["update-grub"])
+
+        self.console.print("Saving state information")
  
