@@ -44,10 +44,28 @@ class Ostree(object):
         shutil.move(
             self.deployment_dir.joinpath("usr/etc"),
             self.deployment_dir.joinpath("etc"))
-        subprocess.run(
-            ["systemd-tmpfiles", "--create", "--root", self.deployment_dir],
-            check=True)
+        self.populate_var()
         return self.deployment_dir
+
+    def populate_var(self):
+        tmpdir = self.deployment_dir.joinpath("var")
+        for target in ("log", "lib", "tmp"):
+            tmpdir.joinpath(target).mkdir(parents=True, exist_ok=True)
+        for target in ('home', 'roothome', 'lib/dpkg', 'opt', 'srv',
+                   'usrlocal', 'mnt', 'media', 'spool', 'spool/mail'):
+            if tmpdir.joinpath(target).exists():
+                continue
+
+            ret = subprocess.run(
+                    ["systemd-tmpfiles", "--create", "--boot",
+                              f"--root={self.deployment_dir}",
+                              "--prefix=/var/" + target],
+                             encoding="utf8",
+                            check=True)
+            if ret.returncode not in [0, 65]:
+                self.console.print(f"Failed to create {target}")
+            self.deployment_dir.joinpath("var/cache/apt/partitial").mkdir(
+                parents=True, exist_ok=True)
         
     def post_deployment(self):
         shutil.move(

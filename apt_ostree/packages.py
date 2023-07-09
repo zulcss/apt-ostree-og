@@ -6,6 +6,7 @@ from rich.console import Console
 
 from apt_ostree.constants import WORKSPACE
 from apt_ostree.ostree import Ostree
+from apt_ostree.utils import run_command
 
 class Packages(object):
     def __init__(self):
@@ -15,6 +16,8 @@ class Packages(object):
         self._apt_cache = None
         self.console = Console()
         self.ostree = None
+
+        self.deployment_dir.mkdir(parents=True, exist_ok=True)
 
     def _cache(self):
         if not self._apt_cache:
@@ -30,6 +33,7 @@ class Packages(object):
     def install(self, packages):
         """Install package"""
         self._apt_cache = self._cache()
+        deps = [] + list(packages)
 
         self.packages = self.get_packages(packages)
         if len(self.packages) == 0:
@@ -39,10 +43,14 @@ class Packages(object):
         self.ostree = Ostree(self.deployment_dir)
         self.deployment_dir = self.ostree.deployment()
 
-        self.console.print("Going to install the following packages")
+        self.apt_update()
+        self.console.print("Installing the following package candidates")
         for package in self.packages:
             ver = self.get_version(package)
             self.console.print(f"{package} {ver}")
+
+            self.console.print(f"Installing {package}")
+            self.apt_install(package)
 
     def get_version(self, package):
         return self._apt_cache[package].candidate.version
@@ -56,3 +64,8 @@ class Packages(object):
                     pkgs.append(package)
         return pkgs
 
+    def apt_update(self):
+        run_command(["apt-get", "update"], self.deployment_dir)
+
+    def apt_install(self, package):
+        run_command(["apt-get", "install", "-y", package], self.deployment_dir)
