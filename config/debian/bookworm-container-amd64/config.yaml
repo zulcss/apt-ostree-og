@@ -1,0 +1,15 @@
+---
+rootfs:
+  suite: bookworm
+  mirror: http://deb.debian.org/debian
+ostree:
+  branch: debian/bookworm
+  repo: ostree_repo
+  template: debian-ostree-commit.yaml
+image:
+  name: debian-ostree-qemu-uefi-amd64.img
+  size: 20G
+  template: debian-ostree-amd64.yaml
+container:
+  container_name: zulcss/ostree-bookworm-test:latest
+  registry: quay.io

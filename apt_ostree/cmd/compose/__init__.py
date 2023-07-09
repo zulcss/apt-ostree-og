@@ -1,6 +1,7 @@
 import click
 
 from . import image
+from . import container
 from . import deployment
 
 
@@ -12,3 +13,4 @@ def compose(ctxt):
 
 compose.add_command(image.image)
 compose.add_command(deployment.deployment)
+compose.add_command(container.container)

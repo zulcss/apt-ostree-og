@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+
+# Convert package directores accessing /var to use
+# systemd-tmpfiles.d
+
+import apt
+import os
+import pathlib
+import stat
+
+
+# packages to be excluded from installed packages
+# since they are either handled by packages or
+# we handle it elsewhere.
+exclude=["ucf", 
+         "apt", 
+         "base-files",
+         "dpkg", 
+         "systemd", 
+         "init-system-helpers",
+         "dbus",
+         "policykit-1",
+         "polkitd",
+         "debconf"]
+
+print("Creating /lib/tmpfiles.d/apt-ostree-autovar.conf")
+tempfile = open("lib/tmpfiles.d/apt-ostree-autovar.conf", "w")
+rootdir = pathlib.Path("/")
+
+tempfile.write("# This file is created by apt-ostree\n")
+
+cache = apt.cache.Cache()
+for p in cache:
+    if p.installed and "/var" in p.installed_files and p.name not in exclude:
+        tempfile.write(f"# {p.name}\n")
+        files = [file for file in p.installed_files
+                 if file.startswith("/var/")
+                 and file != "/var/lib/dpkg"
+                 and file != "/var/run"
+                 and file != "/var/lock"
+                 and file != "/var/cache"
+                 and file != "/var/spool"
+                 and file != "/var/legacy"]
+        for file in files:
+            path = rootdir.joinpath(file)
+            octal = str(oct(path.stat().st_mode)[-3:])
+            tempfile.write(f"d {file} 0{octal} {path.owner()} {path.group()} -\n")

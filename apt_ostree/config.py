@@ -28,6 +28,9 @@ class Config(object):
         image = cfg.get("image", None)
         if image is None:
             self.console.print("[red]Unable to parse image config, using defaults.[/red]")
+        container = cfg.get("container", None)
+        if container is None:
+            self.console.print("[red]Unable to parse container config, using defaults.[/red]")
 
         return {
             "suite": rootfs.get("suite", "bookwork"),
@@ -38,5 +41,8 @@ class Config(object):
             "ostree_template": ostree.get("template", "debian-ostree-commit.yaml"),
             "name": image.get("name", "debian-ostree-qemu-uefi-amd64.img"),
             "size": image.get("size", "20G"),
-            "image_template": image.get("template", "debian-ostree-amd64.yaml")
+            "image_template": image.get("template", "debian-ostree-amd64.yaml"),
+            "container_name": container.get("container_name", f"debian-ostree-dev:latest"),
+            "registry": container.get("registry", "quay.io"),
+        
         }
