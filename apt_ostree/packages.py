@@ -11,6 +11,8 @@ from apt_ostree.ostree import Ostree
 from apt_ostree.ostree import ostree
 from apt_ostree.utils import run_sandbox_command
 
+verbosity = 0
+
 class Packages(object):
     def __init__(self):
         self.workspace = WORKSPACE
@@ -41,6 +43,7 @@ class Packages(object):
 
     def install(self, packages):
         """Install package"""
+        print(verbosity)
         self._apt_cache = self._cache()
         deps = set()
         predeps = set()
@@ -66,6 +69,9 @@ class Packages(object):
                 self.apt_install(package)
 
             self.ostree.post_deployment()
+        else:
+            self.console.print("Terminating...")
+            sys.exit(1)
 
 
     def show_dependencies(self, all_deps, deps, predeps): 
