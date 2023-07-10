@@ -17,6 +17,7 @@ class Bootstrap(object):
         self.cmd = ["mmdebstrap", "--verbose"]
 
     def mmdebstrap(self, config):
+        """Run mmdebstrap for a given compose configuration"""
         self.console.print("Running mmdebstrap")
 
         suite = config.get("suite")

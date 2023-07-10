@@ -24,6 +24,7 @@ class Packages(object):
         self.deployment_dir.mkdir(parents=True, exist_ok=True)
 
     def _cache(self):
+        """Setup the apt-cache"""
         if not self._apt_cache:
             try:
                 self.console.print("Running apt-get update")
@@ -35,6 +36,7 @@ class Packages(object):
         return self._apt_cache
 
     def _apt_package(self, package):
+        """Query the apt-cahce for a given pckage"""
         try:
             return self._cache()[package]
         except KeyError:
@@ -73,6 +75,7 @@ class Packages(object):
 
 
     def show_dependencies(self, all_deps, deps, predeps): 
+        """Display the package information that are going to be installed"""
         for pkg in self.packages:
             deps = self.get_dependencies(
                 self._apt_cache,
@@ -108,6 +111,7 @@ class Packages(object):
 
          
     def get_dependencies(self, cache, pkg, deps, key="Depends"):
+        """Recursively collect the dependencies for a given package"""
         candver = cache._depcache.get_candidate_ver(pkg._pkg)
         if candver is None:
             return deps
@@ -125,6 +129,7 @@ class Packages(object):
         return deps
 
     def show_packages(self):
+        """Display the package dependecies"""
         table = Table(title="New Packages",expand=True, box=None)
         table.add_column("Name")
         table.add_column("Version")
@@ -142,9 +147,11 @@ class Packages(object):
         self.console.print(table)
 
     def get_version(self, package):
+        """Get the debian verison of the package"""
         return self._apt_cache[package].candidate.version
 
     def get_packages(self, packages):
+        """Check the packages exist and are not intalled"""
         pkgs = []
         for package in packages:
             if package in self._apt_cache:
@@ -154,10 +161,12 @@ class Packages(object):
         return pkgs
 
     def apt_update(self):
+        """Perform an apt-get update in the sandbox"""
         self.console.print("Running apt-get update")
         run_sandbox_command(["apt-get", "update"], self.deployment_dir)
 
     def apt_install(self, package):
+        """Perform an apt-get install in the sandbox"""
         env = dict(
             DEBIAN_FRONTEND="noninteractive",
             DEBCONF_INTERACTIVE_SEEN="true",
@@ -165,4 +174,5 @@ class Packages(object):
             INITRD="No",
         )
 
-        run_sandbox_command(["apt-get", "install", "-y", package], self.deployment_dir, env=env, verbose=self.verbose)
+        run_sandbox_command(["apt-get", "install", "-y", package],
+            self.deployment_dir, env=env, verbose=self.verbose)

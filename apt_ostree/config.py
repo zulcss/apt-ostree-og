@@ -9,6 +9,7 @@ class Config(object):
         self.console = Console()
 
     def load_config(self, config):
+        """Laod configuration file"""
         cfg = {}
         try:
             config = pathlib.Path(config)

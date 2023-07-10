@@ -22,6 +22,7 @@ class Container(object):
         self.b = Build(self.workspace_dir)
 
     def build(self, config):
+        """Build the container from a ostree branch"""
         self.console.print("Copying configuration to workspace")
         if self.workspace_dir.exists():
             shutil.rmtree(self.workspace_dir)

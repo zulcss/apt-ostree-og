@@ -25,6 +25,8 @@ def install(ctxt, packages, verbose):
 
     Packages(verbose).install(packages)
 
+    # Need to reboot to the newer deployment in order to take
+    # advantage of the new packages, for now.
     console.print("Don't forget to reboot for changes to take affect!")
     if click.confirm("Do you want to reboot now?"):
         run_command(["shutdown", "-r", "now"])
