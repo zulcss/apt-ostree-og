@@ -154,4 +154,11 @@ class Packages(object):
         run_sandbox_command(["apt-get", "update"], self.deployment_dir)
 
     def apt_install(self, package):
-        run_sandbox_command(["apt-get", "install", "-y", package], self.deployment_dir)
+        env = dict(
+            DEBIAN_FRONTEND="noninteractive",
+            DEBCONF_INTERACTIVE_SEEN="true",
+            KERNEL_INSTALL_BYPASS="1",
+            INITRD="No",
+        )
+
+        run_sandbox_command(["apt-get", "install", "-y", package], self.deployment_dir, env=env)

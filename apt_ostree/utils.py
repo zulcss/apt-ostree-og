@@ -7,7 +7,7 @@ import subprocess
 
 console = Console()
 
-def run_sandbox_command(args, rootfs):
+def run_sandbox_command(args, rootfs, env=None):
     try:
         cmd = [
             "bwrap",
@@ -19,9 +19,8 @@ def run_sandbox_command(args, rootfs):
         cmd += args
         subprocess.run(
             cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
             encoding="utf8",
+            env=env,
             check=False)
     except subprocess.CalledProcessError as error:
         console.print(error)
