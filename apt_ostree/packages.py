@@ -11,10 +11,9 @@ from apt_ostree.ostree import Ostree
 from apt_ostree.ostree import ostree
 from apt_ostree.utils import run_sandbox_command
 
-verbosity = 0
-
 class Packages(object):
-    def __init__(self):
+    def __init__(self, verbose):
+        self.verbose = True
         self.workspace = WORKSPACE
         self.deployment_dir = self.workspace.joinpath("deployments")
         self.packages = []
@@ -43,7 +42,6 @@ class Packages(object):
 
     def install(self, packages):
         """Install package"""
-        print(verbosity)
         self._apt_cache = self._cache()
         deps = set()
         predeps = set()
@@ -167,4 +165,4 @@ class Packages(object):
             INITRD="No",
         )
 
-        run_sandbox_command(["apt-get", "install", "-y", package], self.deployment_dir, env=env)
+        run_sandbox_command(["apt-get", "install", "-y", package], self.deployment_dir, env=env, verbose=self.verbose)
