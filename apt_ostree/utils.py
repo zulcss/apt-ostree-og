@@ -1,11 +1,9 @@
-import os
-import sys
-
 from rich.console import Console
 
 import subprocess
 
 console = Console()
+
 
 def run_sandbox_command(args, rootfs, verbose=True, env=None):
     stdin = None
@@ -36,16 +34,14 @@ def run_sandbox_command(args, rootfs, verbose=True, env=None):
     except subprocess.CalledProcessError as error:
         console.print(error)
 
+
 def run_command(cmd):
     try:
         return subprocess.run(
             cmd,
-             stdout=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
             stderr=subprocess.STDOUT,
             encoding="utf8",
             check=False)
     except subprocess.CalledProcessError as error:
         console.print(error)
-
-
-        

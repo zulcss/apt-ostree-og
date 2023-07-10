@@ -1,17 +1,18 @@
 from datetime import datetime
+from gi.repository import OSTree
 import os
-import shutil
 import pathlib
+import shutil
 import subprocess
 import sys
 
-from apt_ostree.utils import run_sandbox_command
 from apt_ostree.utils import run_command
+from apt_ostree.utils import run_sandbox_command
 from rich.console import Console
 
 import gi
 gi.require_version('OSTree', '1.0')
-from gi.repository import OSTree
+
 
 def ostree(*args, _input=None, **kwargs):
     """Wrapper for ostree"""
@@ -22,6 +23,7 @@ def ostree(*args, _input=None, **kwargs):
                    stdout=sys.stderr,
                    input=_input,
                    check=True)
+
 
 class Ostree(object):
     def __init__(self, deployment_dir):
@@ -39,13 +41,14 @@ class Ostree(object):
             sys.exit(1)
 
         csum = deployments[0].get_csum()
-        self.console.print(f"Checking out {csum[:10]} to {self.deployment_dir}")
+        self.console.print(
+            f"Checking out {csum[:10]} to {self.deployment_dir}")
         self.deployment_dir = self.deployment_dir.joinpath(csum)
         if self.deployment_dir.exists():
             shutil.rmtree(self.deployment_dir)
 
         run_command(
-                ["ostree", "checkout", csum, self.deployment_dir])
+            ["ostree", "checkout", csum, self.deployment_dir])
         shutil.move(
             self.deployment_dir.joinpath("usr/etc"),
             self.deployment_dir.joinpath("etc"))
@@ -53,26 +56,26 @@ class Ostree(object):
         return self.deployment_dir
 
     def populate_var(self):
-        tmpdir = self.deployment_dir.joinpath("var")
         ret = run_command(
-               ["systemd-tmpfiles", "--create", f"--root={self.deployment_dir}"])
+            ["systemd-tmpfiles", "--create", f"--root={self.deployment_dir}"])
         if ret.returncode not in [0, 65]:
-           self.console.print(f"Failed to create {target}")
+            self.console.print(f"Failed to run tmpfiles")
 
         self.deployment_dir.joinpath("var/cache/apt/partial").mkdir(
-             parents=True, exist_ok=True)
+            parents=True, exist_ok=True)
         run_sandbox_command(
-             ["touch", "/var/lib/dpkg/lock-frontend"], self.deployment_dir)
+            ["touch", "/var/lib/dpkg/lock-frontend"], self.deployment_dir)
         run_sandbox_command(["apt-get", "update"], self.deployment_dir)
-        run_sandbox_command(["apt-get", "install", "-y", "locales"], self.deployment_dir)
-        
+        run_sandbox_command(["apt-get", "install", "-y",
+                            "locales"], self.deployment_dir)
+
     def post_deployment(self):
         shutil.move(
             self.deployment_dir.joinpath("etc"),
             self.deployment_dir.joinpath("usr/etc"))
         shutil.rmtree(
             self.deployment_dir.joinpath("var"))
-        os.mkdir(os.path.join (self.deployment_dir, "var"), 0o755)
+        os.mkdir(os.path.join(self.deployment_dir, "var"), 0o755)
 
         now = datetime.now()
         now = now.strftime("%Y%m%d%H%M%S")
@@ -80,12 +83,13 @@ class Ostree(object):
 
         self.console.print(f"Committing new branch to {branch}")
         run_command(
-            ["ostree", "commit", f"--branch={branch}", str(self.deployment_dir)])
+            ["ostree", "commit", f"--branch={branch}",
+             str(self.deployment_dir)])
         self.console.print(f"Deploying {branch}")
         run_command(
-            ["ostree", "admin", "deploy", branch, "--retain-rollback", "--karg-proc-cmdline"])
+            ["ostree", "admin", "deploy", branch, "--retain-rollback",
+             "--karg-proc-cmdline"])
         self.console.print(f"Updating grub")
         run_command(["update-grub"])
 
         self.console.print("Saving state information")
- 

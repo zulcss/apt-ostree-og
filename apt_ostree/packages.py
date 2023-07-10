@@ -1,6 +1,5 @@
-import sys
-import subprocess
 import apt
+import sys
 
 import click
 from rich.console import Console
@@ -8,8 +7,8 @@ from rich.table import Table
 
 from apt_ostree.constants import WORKSPACE
 from apt_ostree.ostree import Ostree
-from apt_ostree.ostree import ostree
 from apt_ostree.utils import run_sandbox_command
+
 
 class Packages(object):
     def __init__(self, verbose):
@@ -73,20 +72,19 @@ class Packages(object):
             self.console.print("Terminating...")
             sys.exit(1)
 
-
-    def show_dependencies(self, all_deps, deps, predeps): 
+    def show_dependencies(self, all_deps, deps, predeps):
         """Display the package information that are going to be installed"""
         for pkg in self.packages:
             deps = self.get_dependencies(
                 self._apt_cache,
                 self._apt_package(pkg),
                 deps,
-               "Depends")
+                "Depends")
             predeps = self.get_dependencies(
                 self._apt_cache,
                 self._apt_package(pkg),
                 deps,
-               "PreDepends")
+                "PreDepends")
         all_deps.update(deps, predeps)
         all_deps = sorted(all_deps)
 
@@ -109,7 +107,6 @@ class Packages(object):
 
         self.console.print(table)
 
-         
     def get_dependencies(self, cache, pkg, deps, key="Depends"):
         """Recursively collect the dependencies for a given package"""
         candver = cache._depcache.get_candidate_ver(pkg._pkg)
@@ -125,12 +122,13 @@ class Packages(object):
                             and dep.target_pkg.name not in deps
                         ):
                             deps.add(dep.target_pkg.name)
-                            self.get_dependencies(cache, cache[dep.target_pkg.name], deps, key)
+                            self.get_dependencies(
+                                cache, cache[dep.target_pkg.name], deps, key)
         return deps
 
     def show_packages(self):
         """Display the package dependecies"""
-        table = Table(title="New Packages",expand=True, box=None)
+        table = Table(title="New Packages", expand=True, box=None)
         table.add_column("Name")
         table.add_column("Version")
         table.add_column("Architecture")
@@ -138,11 +136,15 @@ class Packages(object):
         table.add_column("Origin")
         table.add_column("Size")
         for package in self.packages:
-            table.add_row(package, 
-                          self._apt_package(package).candidate.version,
-                          str(self._apt_package(package).candidate.architecture),
-                          str(self._apt_package(package).candidate.origins[0].archive),
-                          str(self._apt_package(package).candidate.origins[0].origin),
+            table.add_row(package,
+                          self._apt_package(
+                              package).candidate.version,
+                          str(self._apt_package(
+                              package).candidate.architecture),
+                          str(self._apt_package(
+                              package).candidate.origins[0].archive),
+                          str(self._apt_package(
+                              package).candidate.origins[0].origin),
                           str(self._apt_package(package).candidate.size))
         self.console.print(table)
 
@@ -175,4 +177,4 @@ class Packages(object):
         )
 
         run_sandbox_command(["apt-get", "install", "-y", package],
-            self.deployment_dir, env=env, verbose=self.verbose)
+                            self.deployment_dir, env=env, verbose=self.verbose)

@@ -1,15 +1,13 @@
 import shutil
-import subprocess
-import sys
 
-from apt_ostree.build import Build
 from apt_ostree.bootstrap import Bootstrap
-from apt_ostree import constants
+from apt_ostree.build import Build
 from apt_ostree.config import Config
-from apt_ostree.ostree import ostree
+from apt_ostree import constants
 from apt_ostree.utils import run_command
 
 from rich.console import Console
+
 
 class Container(object):
     def __init__(self):
@@ -33,13 +31,13 @@ class Container(object):
 
         self.b.create_repo(self.config["repo"])
         self.b.create_ostree_commit(
-                self.config["branch"],
-                self.config["repo"],
-                self.config["suite"],
-                self.config["ostree_template"]
+            self.config["branch"],
+            self.config["repo"],
+            self.config["suite"],
+            self.config["ostree_template"]
         )
         self.container_build(self.config["branch"], self.config["repo"],
-                             self.config["registry"], 
+                             self.config["registry"],
                              self.config["container_name"])
 
     def container_build(self, branch, repo, registry, name):
@@ -47,4 +45,4 @@ class Container(object):
         url = f"docker://{registry}/{name}"
         run_command(
             ["ostree-ext-cli", "container", "encapsulate", f"--repo={repo}",
-             branch, name])
+             branch, url])

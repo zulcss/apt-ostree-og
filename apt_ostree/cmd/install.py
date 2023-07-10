@@ -1,10 +1,10 @@
 import os
 import sys
 
-import click
-from rich.console import Console
 from apt_ostree.packages import Packages
 from apt_ostree.utils import run_command
+import click
+from rich.console import Console
 
 console = Console()
 
@@ -12,7 +12,7 @@ console = Console()
 @click.command(name="install", help="Install a debian pacakge")
 @click.pass_context
 @click.argument("packages", nargs=-1)
-@click.option("-v", "--verbose", 
+@click.option("-v", "--verbose",
               is_flag=True, help="Print more output.")
 def install(ctxt, packages, verbose):
     if os.getuid() != 0:
@@ -32,4 +32,3 @@ def install(ctxt, packages, verbose):
         run_command(["shutdown", "-r", "now"])
     else:
         sys.exit(1)
-

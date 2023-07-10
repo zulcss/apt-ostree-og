@@ -1,7 +1,8 @@
 import click
 
-from apt_ostree.image import Image
 from apt_ostree.cmd.compose import options
+from apt_ostree.image import Image
+
 
 @click.command(help="Compose an image")
 @click.pass_context

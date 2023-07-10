@@ -1,8 +1,8 @@
 import click
 
-from . import image
 from . import container
 from . import deployment
+from . import image
 
 
 @click.group(help="Compands to build a container/image")

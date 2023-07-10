@@ -4,15 +4,16 @@ from rich.console import Console
 
 from apt_ostree.ostree import ostree
 
+
 class Build(object):
     def __init__(self, workspace):
         self.console = Console()
         self.workspace_dir = workspace
-    
+
     def create_repo(self, repo):
         """Create the initial ostree repository"""
         self.console.print("Creating ostree repository.")
-        ostree("init", 
+        ostree("init",
                repo=str(self.workspace_dir.joinpath(repo)), mode="archive")
 
     def create_ostree_commit(self, branch, repo, suite, template):
@@ -27,7 +28,7 @@ class Build(object):
                                "-t", "architecture:amd64",
                                "-t", f"suite:{suite}",
                                template], cwd=self.workspace_dir)
-    
+
     def create_image(self, branch, repo, image, size, suite, template):
         """Create a raw image bootable via qemu"""
         self.console.print("Createing ostree image")
