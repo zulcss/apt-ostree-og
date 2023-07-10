@@ -1,7 +1,7 @@
 import os
 import sys
 
-from apt_ostree.packages import Packages
+from apt_ostree.packages.install import Install
 from apt_ostree.utils import run_command
 import click
 from rich.console import Console
@@ -23,7 +23,7 @@ def install(ctxt, packages, verbose):
         console.print("You mus specify at least one package")
         sys.exit(1)
 
-    Packages(verbose).install(packages)
+    Install(verbose).run(packages)
 
     # Need to reboot to the newer deployment in order to take
     # advantage of the new packages, for now.

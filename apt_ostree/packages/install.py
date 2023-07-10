@@ -10,7 +10,7 @@ from apt_ostree.ostree import Ostree
 from apt_ostree.utils import run_sandbox_command
 
 
-class Packages(object):
+class Install(object):
     def __init__(self, verbose):
         self.verbose = True
         self.workspace = WORKSPACE
@@ -41,7 +41,7 @@ class Packages(object):
         except KeyError:
             self.console.print("Unable to find package")
 
-    def install(self, packages):
+    def run(self, packages):
         """Install package"""
         self._apt_cache = self._cache()
         deps = set()

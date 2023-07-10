@@ -2,6 +2,7 @@ import click
 
 from . import compose
 from . import install
+from . import uninstall
 
 
 @click.group(
@@ -14,6 +15,7 @@ def cli(ctx: click.Context):
 
 cli.add_command(install.install)
 cli.add_command(compose.compose)
+cli.add_command(uninstall.uninstall)
 
 
 def main():
