@@ -1,3 +1,10 @@
+"""
+Copyright (c) 2023 Wind River Systems, Inc.
+
+SPDX-License-Identifier: Apache-2.0
+
+"""
+
 from datetime import datetime
 from gi.repository import OSTree
 import os
