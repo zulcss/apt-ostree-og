@@ -68,7 +68,8 @@ class Ostree(object):
 
     def populate_var(self):
         ret = run_command(
-            ["systemd-tmpfiles", "--create", f"--root={self.deployment_dir}"])
+            ["systemd-tmpfiles", "--create", "--remove", "--boot",  f"--root={self.deployment_dir}",
+             "--prefix=/var", "--prefix=/run"])
         if ret.returncode not in [0, 65]:
             self.console.print(f"Failed to run tmpfiles")
 
