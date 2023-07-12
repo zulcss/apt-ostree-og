@@ -6,19 +6,20 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 from datetime import datetime
-from gi.repository import OSTree
 import os
 import pathlib
 import shutil
 import subprocess
 import sys
 
+from apt_ostree import constants
 from apt_ostree.utils import run_command
 from apt_ostree.utils import run_sandbox_command
 from rich.console import Console
 
 import gi
 gi.require_version('OSTree', '1.0')
+from gi.repository import OSTree
 
 
 def ostree(*args, _input=None, **kwargs):
@@ -33,12 +34,15 @@ def ostree(*args, _input=None, **kwargs):
 
 
 class Ostree(object):
-    def __init__(self, deployment_dir):
+    def __init__(self):
         self.console = Console()
-        self.deployment_dir = deployment_dir
-        self.rootdir = pathlib.Path("/")
+        self.workspace_dir = constants.WORKSPACE
+        self.deployment_dir = self.workspace_dir.joinpath("deployments")
 
-    def deployment(self):
+        self.workspace_dir.mkdir(parents=True, exist_ok=True)
+
+    def current_deployment(self):
+        """Deploy the current deployment to a temporary directory"""
         sysroot = OSTree.Sysroot()
         sysroot.load()
 
@@ -98,5 +102,3 @@ class Ostree(object):
              "--karg-proc-cmdline"])
         self.console.print(f"Updating grub")
         run_command(["update-grub"])
-
-        self.console.print("Saving state information")

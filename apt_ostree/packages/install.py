@@ -5,175 +5,64 @@ import click
 from rich.console import Console
 from rich.table import Table
 
-from apt_ostree.constants import WORKSPACE
-from apt_ostree.ostree import Ostree
-from apt_ostree.utils import run_sandbox_command
+from apt_ostree.utils import eerror
 
+class Install:
+    def install(self, packages):
+        """apt-get install package"""
+        self._apt_cache = self.cache()
 
-class Install(object):
-    def __init__(self):
-        self.workspace = WORKSPACE
-        self.deployment_dir = self.workspace.joinpath("deployments")
-        self.packages = []
-        self._apt_cache = None
-        self.console = Console()
-        self.ostree = None
-
-        self.deployment_dir.mkdir(parents=True, exist_ok=True)
-
-    def _cache(self):
-        """Setup the apt-cache"""
-        if not self._apt_cache:
-            try:
-                self.console.print("Running apt-get update")
-                self._apt_cache = apt.Cache()
-                self._apt_cache.update()
-            except AttributeError as e:
-                self.console.print(f"[red]Failed to load apt cache[/red]: {e}")
-                sys.exit(-1)
-        return self._apt_cache
-
-    def _apt_package(self, package):
-        """Query the apt-cahce for a given pckage"""
-        try:
-            return self._cache()[package]
-        except KeyError:
-            self.console.print("Unable to find package")
-
-    def run(self, packages):
-        """Install package"""
-        self._apt_cache = self._cache()
         deps = set()
         predeps = set()
         all_deps = set()
 
-        self.packages = self.get_packages(packages)
+        self.packages = self.check_valid_packages(packages)
         if len(self.packages) == 0:
-            self.console.print("No valid packages found...exiting")
-            sys.exit(-1)
-
-        self.show_packages()
-        self.show_dependencies(all_deps, deps, predeps)
+            eerror("No valid packages found...exiting.")
+            sys.exit(1)
+        else:
+            self.show_packages(self.packages, "New packages")
+        
+        all_deps = self._get_dependencies(deps, predeps, all_deps)
+        if len(all_deps) == 0:
+            self.console.print("No additional dependencies needed.")
+        else:
+            self.show_packages(all_deps, "New dependencies")
 
         if click.confirm("Do you want to continue?"):
-            self.ostree = Ostree(self.deployment_dir)
-            self.deployment_dir = self.ostree.deployment()
+            self.deployment_dir = self.ostree.current_deployment()
 
-            self.apt_update()
-            self.console.print("Installing the following package candidates")
+            grid = Table.grid(expand=True)
+            grid.add_column()
+            grid.add_column(justify="right")
+
+            self.console.print("Installing the following candidates")
             for package in self.packages:
-                ver = self.get_version(package)
-                self.console.print(f"Installing {package} ({ver})")
                 self.apt_install(package)
+                grid.add_row(f"Installed {package} {(self.version(package))}", "[bold magenta]COMPLETED [green]:heavy_check_mark:")
+                self.console.print(grid)
 
             self.ostree.post_deployment()
-        else:
-            self.console.print("Terminating...")
-            sys.exit(1)
 
-    def show_dependencies(self, all_deps, deps, predeps):
-        """Display the package information that are going to be installed"""
+        else:
+            eerror("Terminating at your request")
+            sys.exi(1)
+
+    def _get_dependencies(self, deps, predeps, all_deps):
+        """Get all the dependencies for a given package"""
+        self.console.print("\nChecking for dependencies")
         for pkg in self.packages:
             deps = self.get_dependencies(
-                self._apt_cache,
-                self._apt_package(pkg),
-                deps,
-                "Depends")
+                    self._apt_cache,
+                    self.apt_package(pkg),
+                    deps,
+                    "Depends")
             predeps = self.get_dependencies(
-                self._apt_cache,
-                self._apt_package(pkg),
-                deps,
-                "PreDepends")
+                    self._apt_cache,
+                    self.apt_package(pkg),
+                    deps,
+                    "PreDepends")
         all_deps.update(deps, predeps)
-        all_deps = sorted(all_deps)
-
-        table = Table(title="New Dependencies", expand=True, box=None)
-        table.add_column("Name")
-        table.add_column("Version")
-        table.add_column("Architecture")
-        table.add_column("Component")
-        table.add_column("Origin")
-        table.add_column("Size")
-        for pkg in all_deps:
-            d = self._apt_package(pkg)
-            if not d.installed:
-                table.add_row(d.name,
-                              d.candidate.version,
-                              str(d.candidate.architecture),
-                              str(d.candidate.origins[0].archive),
-                              str(d.candidate.origins[0].origin),
-                              str(d.candidate.size))
-
-        self.console.print(table)
-
-    def get_dependencies(self, cache, pkg, deps, key="Depends"):
-        """Recursively collect the dependencies for a given package"""
-        candver = cache._depcache.get_candidate_ver(pkg._pkg)
-        if candver is None:
-            return deps
-        dependslist = candver.depends_list
-        if key in dependslist:
-            for depVerList in dependslist[key]:
-                for dep in depVerList:
-                    if dep.target_pkg.name in cache:
-                        if (
-                            pkg.name != dep.target_pkg.name
-                            and dep.target_pkg.name not in deps
-                        ):
-                            deps.add(dep.target_pkg.name)
-                            self.get_dependencies(
-                                cache, cache[dep.target_pkg.name], deps, key)
-        return deps
-
-    def show_packages(self):
-        """Display the package dependecies"""
-        table = Table(title="New Packages", expand=True, box=None)
-        table.add_column("Name")
-        table.add_column("Version")
-        table.add_column("Architecture")
-        table.add_column("Component")
-        table.add_column("Origin")
-        table.add_column("Size")
-        for package in self.packages:
-            table.add_row(package,
-                          self._apt_package(
-                              package).candidate.version,
-                          str(self._apt_package(
-                              package).candidate.architecture),
-                          str(self._apt_package(
-                              package).candidate.origins[0].archive),
-                          str(self._apt_package(
-                              package).candidate.origins[0].origin),
-                          str(self._apt_package(package).candidate.size))
-        self.console.print(table)
-
-    def get_version(self, package):
-        """Get the debian verison of the package"""
-        return self._apt_cache[package].candidate.version
-
-    def get_packages(self, packages):
-        """Check the packages exist and are not intalled"""
-        pkgs = []
-        for package in packages:
-            if package in self._apt_cache:
-                pkg = self._apt_cache[package]
-                if not pkg.is_installed:
-                    pkgs.append(package)
-        return pkgs
-
-    def apt_update(self):
-        """Perform an apt-get update in the sandbox"""
-        self.console.print("Running apt-get update")
-        run_sandbox_command(["apt-get", "update"], self.deployment_dir)
-
-    def apt_install(self, package):
-        """Perform an apt-get install in the sandbox"""
-        env = dict(
-            DEBIAN_FRONTEND="noninteractive",
-            DEBCONF_INTERACTIVE_SEEN="true",
-            KERNEL_INSTALL_BYPASS="1",
-            INITRD="No",
-        )
-
-        run_sandbox_command(["apt-get", "install", "-y", package],
-                            self.deployment_dir, env=env)
+        all_deps = self.check_valid_packages(list(all_deps))
+            
+        return all_deps

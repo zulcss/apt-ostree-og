@@ -11,16 +11,10 @@ import subprocess
 
 console = Console()
 
+def eerror(msg):
+    console.print(f"[red]Error [/red]" + msg)
 
-def run_sandbox_command(args, rootfs, verbose=True, env=None):
-    stdin = None
-    stdout = subprocess.DEVNULL,
-    stderr = subprocess.STDOUT,
-
-    if verbose:
-        stdout = None
-        stderr = None
-
+def run_sandbox_command(args, rootfs, env=None):
     try:
         cmd = [
             "bwrap",
@@ -32,10 +26,6 @@ def run_sandbox_command(args, rootfs, verbose=True, env=None):
         cmd += args
         subprocess.run(
             cmd,
-            stdout=stdout,
-            stdin=stdin,
-            stderr=stderr,
-            encoding="utf8",
             env=env,
             check=False)
     except subprocess.CalledProcessError as error:

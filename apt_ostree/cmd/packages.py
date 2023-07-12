@@ -9,6 +9,7 @@ import os
 import sys
 
 from apt_ostree.cmd import options
+from apt_ostree.packages.package import Package
 from apt_ostree.packages.install import Install
 from apt_ostree.packages.uninstall import Uninstall
 from apt_ostree.utils import run_command
@@ -16,6 +17,7 @@ import click
 from rich.console import Console
 
 console = Console()
+pkg = Package()
 
 @click.group(help='Query debain package information in a deployment')
 @click.pass_context
@@ -29,22 +31,22 @@ def package(ctxt):
 @click.argument("packages", nargs=-1)
 def package_install(ctxt, packages):
     package_check(packages)
-    Install().run(packages)
+    pkg.package_install(packages)
     ask_reboot()
 
 @click.command(name="uninstall", help="Uninstall a debian dpackage")
 @click.pass_context
 @click.argument("packages", nargs=-1)
 def package_uninstall(ctxt, packages):
-    package_check(packages)
-    Uninstall().run(packages)
-    ask_reboot()
+    #package_check(packages)
+    pkg.package_uninstall(packages)
+    #ask_reboot()
 
 @click.command(name="list", help="List all packages in a deployment")
 @click.pass_context
 @options.branch
 def package_list(ctxt, branch):
-    pass
+    pkg.package_list()
 
 package.add_command(package_list)
 package.add_command(package_install)
