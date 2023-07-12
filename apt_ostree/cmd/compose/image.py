@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import click
 
-from apt_ostree.cmd.compose import options
+from apt_ostree.cmd import options
 from apt_ostree.image import Image
 
 

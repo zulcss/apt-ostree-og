@@ -13,3 +13,9 @@ def config(f):
         "-C", "--config",
         help="Config file"
     )(f)
+
+def branch(f):
+    return click.option(
+        "-b", "--branch",
+        help="Ostree deployment"
+    )(f)
