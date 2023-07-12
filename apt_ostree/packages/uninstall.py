@@ -10,8 +10,7 @@ from apt_ostree.ostree import Ostree
 from apt_ostree.utils import run_sandbox_command
 
 class Uninstall(object):
-    def __init__(self, verbose):
-        self.verbose = verbose
+    def __init__(self):
         self.workspace = WORKSPACE
         self.deployment_dir = self.workspace.joinpath("deployments")
         self.packages = []
@@ -109,4 +108,4 @@ class Uninstall(object):
         )
         run_sandbox_command(
             ["apt-get", "purge", "-y", package],
-            self.deployment_dir, env=env, verbose=self.verbose)
+            self.deployment_dir, env=env)

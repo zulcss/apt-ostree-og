@@ -11,8 +11,7 @@ from apt_ostree.utils import run_sandbox_command
 
 
 class Install(object):
-    def __init__(self, verbose):
-        self.verbose = True
+    def __init__(self):
         self.workspace = WORKSPACE
         self.deployment_dir = self.workspace.joinpath("deployments")
         self.packages = []
@@ -177,4 +176,4 @@ class Install(object):
         )
 
         run_sandbox_command(["apt-get", "install", "-y", package],
-                            self.deployment_dir, env=env, verbose=self.verbose)
+                            self.deployment_dir, env=env)

@@ -28,7 +28,7 @@ def package(ctxt):
 @click.pass_context
 @click.argument("packages", nargs=-1)
 def package_install(ctxt, packages):
-    package_check()
+    package_check(packages)
     Install().run(packages)
     ask_reboot()
 
@@ -36,7 +36,7 @@ def package_install(ctxt, packages):
 @click.pass_context
 @click.argument("packages", nargs=-1)
 def package_uninstall(ctxt, packages):
-    package_check()
+    package_check(packages)
     Uninstall().run(packages)
     ask_reboot()
 
@@ -47,6 +47,8 @@ def package_list(ctxt, branch):
     pass
 
 package.add_command(package_list)
+package.add_command(package_install)
+package.add_command(package_uninstall)
 
 def package_check(packages):
     if len(packages) == 0:
@@ -54,7 +56,7 @@ def package_check(packages):
         sys.exit(1)
 
 def ask_reboot():
-     console.print("Don't forget to reboot for changes to take affect!")
+    console.print("Don't forget to reboot for changes to take affect!")
     if click.confirm("Do you want to reboot now?"):
         run_command(["shutdown", "-r", "now"])
     else:

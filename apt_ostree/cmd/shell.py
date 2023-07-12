@@ -9,8 +9,6 @@ import click
 
 from . import compose
 from . import packages
-from . import install
-from . import uninstall
 
 
 @click.group(
@@ -21,9 +19,7 @@ def cli(ctx: click.Context):
     ctx.ensure_object(dict)
 
 
-cli.add_command(install.install)
 cli.add_command(compose.compose)
-cli.add_command(uninstall.uninstall)
 cli.add_command(packages.package)
 
 
