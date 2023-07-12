@@ -102,3 +102,8 @@ class APT:
         run_sandbox_command(["apt-get", "purge", "-y", package],
                             self.deployment_dir, env=self.env)
 
+    def apt_upgrade(self):
+        """Run apt-get upgrade"""
+        run_sandbox_command(["apt-get", "upgrade", "-y"],
+                            self.deployment_dir, env=self.env)
+

@@ -42,15 +42,14 @@ def package_uninstall(ctxt, packages):
     pkg.package_uninstall(packages)
     #ask_reboot()
 
-@click.command(name="list", help="List all packages in a deployment")
+@click.command(name="upgrade", help="Upgrade all packages in a deployment")
 @click.pass_context
-@options.branch
-def package_list(ctxt, branch):
-    pkg.package_list()
+def package_upgrade(ctxt):
+    pkg.package_upgrade()
 
-package.add_command(package_list)
 package.add_command(package_install)
 package.add_command(package_uninstall)
+package.add_command(package_upgrade)
 
 def package_check(packages):
     if len(packages) == 0:

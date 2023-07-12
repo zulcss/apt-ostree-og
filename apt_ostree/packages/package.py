@@ -4,9 +4,10 @@ from apt_ostree.constants import WORKSPACE
 from apt_ostree.ostree import Ostree
 from apt_ostree.packages.install import Install
 from apt_ostree.packages.uninstall import Uninstall
+from apt_ostree.packages.upgrade import Upgrade
 from apt_ostree.packages.apt import APT
 
-class Package(Install, Uninstall, APT):
+class Package(Install, Uninstall, Upgrade, APT):
     def __init__(self):
         self.console = Console()
         self.workspace = WORKSPACE
@@ -31,3 +32,6 @@ class Package(Install, Uninstall, APT):
 
     def package_uninstall(self, packages):
         self.uninstall(packages)
+
+    def package_upgrade(self):
+        self.upgrade()
