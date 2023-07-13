@@ -8,6 +8,8 @@ RUN apt-get update && \
       python3-rich \
       python3-apt \
       python3-click \
+      libostree-dev \
+      python3-gi \
       debos \
       mmdebstrap \
       binfmt-support \
