@@ -39,7 +39,7 @@ class Ostree(object):
         self.workspace_dir = constants.WORKSPACE
         self.deployment_dir = self.workspace_dir.joinpath("deployments")
 
-        self.workspace_dir.mkdir(parents=True, exist_ok=True)
+        self.deployment_dir.mkdir(parents=True, exist_ok=True)
 
     def current_deployment(self):
         """Deploy the current deployment to a temporary directory"""
@@ -82,9 +82,6 @@ class Ostree(object):
                             "locales"], self.deployment_dir)
 
     def post_deployment(self):
-        shutil.move(
-            self.deployment_dir.joinpath("etc"),
-            self.deployment_dir.joinpath("usr/etc"))
         shutil.rmtree(
             self.deployment_dir.joinpath("var"))
         os.mkdir(os.path.join(self.deployment_dir, "var"), 0o755)
