@@ -46,9 +46,7 @@ def run_command(cmd):
     try:
         return subprocess.run(
             cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
             encoding="utf8",
-            check=False)
+            check=True)
     except subprocess.CalledProcessError as error:
         console.print(error)

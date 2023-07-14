@@ -82,6 +82,9 @@ class Ostree(object):
                             "locales"], self.deployment_dir)
 
     def post_deployment(self):
+        shutil.move(
+            self.deployment_dir.joinpath("etc"),
+            self.deployment_dir.joinpath("usr/etc"))
         shutil.rmtree(
             self.deployment_dir.joinpath("var"))
         os.mkdir(os.path.join(self.deployment_dir, "var"), 0o755)
