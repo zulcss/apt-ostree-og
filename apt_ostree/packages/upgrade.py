@@ -6,6 +6,7 @@ from rich.table import Table
 class Upgrade:
     def upgrade(self):
         """"apt-get upgrade"""
+        self.show_upgrades()
         self.deployment_dir = self.ostree.current_deployment()
 
         self.console.print("Upgrading packages")
