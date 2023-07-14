@@ -60,19 +60,13 @@ class Ostree(object):
 
         run_command(
             ["ostree", "checkout", csum, self.deployment_dir])
-        shutil.move(
-            self.deployment_dir.joinpath("usr/etc"),
-            self.deployment_dir.joinpath("etc"))
         self.populate_var()
         return self.deployment_dir
 
     def populate_var(self):
-        ret = run_command(
-            ["systemd-tmpfiles", "--create", "--remove", "--boot",  f"--root={self.deployment_dir}",
-             "--prefix=/var", "--prefix=/run"])
-        if ret.returncode not in [0, 65]:
-            self.console.print(f"Failed to run tmpfiles")
-
+        run_sandbox_command(
+            ["systemd-tmpfiles", "--create", "--remove", "--boot",
+             "--prefix=/var", "--prefix=/run"], self.deployment_dir)
         self.deployment_dir.joinpath("var/cache/apt/partial").mkdir(
             parents=True, exist_ok=True)
         run_sandbox_command(
@@ -82,9 +76,8 @@ class Ostree(object):
                             "locales"], self.deployment_dir)
 
     def post_deployment(self):
-        shutil.move(
-            self.deployment_dir.joinpath("etc"),
-            self.deployment_dir.joinpath("usr/etc"))
+        shutil.rmtree(
+            self.deployment_dir.joinpath("etc"))
         shutil.rmtree(
             self.deployment_dir.joinpath("var"))
         os.mkdir(os.path.join(self.deployment_dir, "var"), 0o755)

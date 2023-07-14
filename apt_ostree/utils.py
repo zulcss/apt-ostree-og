@@ -19,21 +19,21 @@ def run_sandbox_command(args, rootfs, env=None):
         cmd = [
             "bwrap",
             "--die-with-parent",
-            "--bind", rootfs, "/",
+            "--bind", str(rootfs), "/",
             "--dir", "/tmp",
             "--dir", "/run",
             "--dev", "/dev",
             "--proc", "/proc",
             "--ro-bind", "/sys", "/sys",
-            "--bind", f"{rootfs}/etc", "/etc",
+            "--bind", f"{rootfs}/usr/etc", "/etc",
             "--share-net",
             "--unshare-pid",
             "--unshare-uts",
             "--unshare-ipc",
             "--unshare-cgroup-try",
         ]
-        print(cmd)
         cmd += args
+        print(cmd)
         subprocess.run(
             cmd,
             env=env,
