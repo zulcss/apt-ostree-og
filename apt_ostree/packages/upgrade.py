@@ -17,6 +17,7 @@ class Upgrade:
     def show_upgrades(self):
         apt_pkg.init()
         cache = apt_pkg.Cache()
+        depcache = apt_pkg.DepCache(cache)
 
         depcache.init()
         if depcache.broken_count > 0:
@@ -28,7 +29,7 @@ class Upgrade:
             depcache.upgrade(True)
             if depcache.del_count > 0:
                 depcache.init()
-            debpcache.upgrade()
+            depcache.upgrade()
         except SystemError as ex:
             self.console.print(f"[red]Error: [/red] Couldn't mark the upgrade {e}")
             sys.exit(0)
