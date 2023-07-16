@@ -13,11 +13,7 @@ console = Console()
 @click.command(help="Add a packagedebian repository")
 @click.pass_context
 @options.repo
-@click.option(
-    "-s", "--suite",
-    help="suite to drop package into",
-    default="bookworm"
-)
+@options.suite
 @click.argument("package", nargs=1)
 def add(ctxt, repo, suite, package):
     """Make sure repo path exists"""
