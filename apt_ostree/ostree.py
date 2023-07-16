@@ -65,7 +65,7 @@ class Ostree(object):
         return self.deployment_dir
 
     def populate_var(self):
-        host = self.deployment_dir.joinpath("etc/hosts")
+        host = self.deployment_dir.joinpath("usr/etc/hosts")
         with open(host, "a") as outfile:
             ipaddress = get_local_ip()
             outfile.write(f"{ipaddress}\tarchive\n")
@@ -85,6 +85,8 @@ class Ostree(object):
             self.deployment_dir.joinpath("etc"))
         shutil.rmtree(
             self.deployment_dir.joinpath("var"))
+        shutil.rmtree(
+            self.deployment_dir.joinpath("opt"))
         os.mkdir(os.path.join(self.deployment_dir, "var"), 0o755)
 
         now = datetime.now()
