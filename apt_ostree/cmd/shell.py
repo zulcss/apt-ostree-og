@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 import click
 
 from . import compose
+from . import repo
 from . import packages
 
 
@@ -21,6 +22,7 @@ def cli(ctx: click.Context):
 
 cli.add_command(compose.compose)
 cli.add_command(packages.package)
+cli.add_command(repo.repo)
 
 
 def main():

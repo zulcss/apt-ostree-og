@@ -5,7 +5,7 @@ from . import deployment
 from . import image
 
 
-@click.group(help="Compands to build a container/image")
+@click.group(help="Commands to build a container/image")
 @click.pass_context
 def compose(ctxt):
     pass
