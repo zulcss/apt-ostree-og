@@ -45,6 +45,9 @@ actions:
   - action: overlay
     description: configure ostree initramfs-tools
     source: overlay/ostree
+
+  - action: overlay
+    source: overlay/repo
  
   - action: apt
     description: install kernel
