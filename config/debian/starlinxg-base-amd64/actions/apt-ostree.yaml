@@ -1,0 +1,16 @@
+{{- $architecture := or .architecture "amd64" -}}
+
+architecture: {{ $architecture }}
+
+actions:
+  - action: apt
+    packages:
+      - libostree-dev
+      - python3-all
+      - python3-pip
+      - python3-pbr
+      - python3-gi
+      - python3-click
+      - python3-apt
+      - mmdebstrap
+

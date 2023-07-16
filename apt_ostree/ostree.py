@@ -13,6 +13,7 @@ import subprocess
 import sys
 
 from apt_ostree import constants
+from apt_ostree.system import get_local_ip
 from apt_ostree.utils import run_command
 from apt_ostree.utils import run_sandbox_command
 from rich.console import Console
@@ -64,6 +65,10 @@ class Ostree(object):
         return self.deployment_dir
 
     def populate_var(self):
+        host = self.deployment_dir.joinpath("etc/hosts")
+        with open(host, "a") as outfile:
+            ipaddress = get_local_ip()
+            outfile.write(f"{ipaddress}\tarchive\n")
         run_sandbox_command(
             ["systemd-tmpfiles", "--create", "--remove", "--boot",
              "--prefix=/var", "--prefix=/run"], self.deployment_dir)

@@ -1,0 +1,17 @@
+{{- $architecture := or .architecture "amd64" -}}
+
+architecture: {{ $architecture }}
+
+actions:
+  - action: apt
+    packages:
+      - screenfetch
+      - inxi 
+
+  - action: overlay
+    description: firstboot
+    source: ../overlay/firstboot
+
+  - action: run
+    chroot: true
+    command: systemctl enable firstboot
