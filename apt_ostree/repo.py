@@ -45,6 +45,13 @@ class Repo(object):
             with open(options_conf, "w") as outfile:
                 outfile.write(options)
 
+            self.console.print("Creating /etc/apt/sources.list.d/starlingx-updates.list")
+            apt_conf = pathlib.Path("/").joinpath("etc/apt/sources.list.d/starlingx-updates.list")
+            conf = textwrap.dedent(f""""\
+                    deb [trusted=yes] http://localhost/debian/ bookworm starlingx-updates""")
+            with open(apt_conf, "w") as outfile:
+                outfile.write(conf)
+
         except Exception as e:
             self.console.print(e)
 
