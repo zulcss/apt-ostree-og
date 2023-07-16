@@ -44,6 +44,8 @@ PACKAGES = [
     "bubblewrap",
     "python3-apt",
     "python3-rich",
+    "reprepro",
+    "nginx-core",
 ]
 
 ARTIFACT = "rootfs.tar.gz"
