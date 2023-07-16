@@ -9,7 +9,7 @@ from apt_ostree.system import check_user
 
 console = Console()
 
-@click.command(help="Create a debian repository")
+@click.command(name="list", help="Create a debian repository")
 @click.pass_context
 @click.option(
     "-R", "--repo",
@@ -18,12 +18,7 @@ console = Console()
     "-S", "--suite",
     default="bookworm",
     help="Suite to create")
-@click.option(
-    "-P", "--pocket",
-    help="Pocket to create",
-    default="starlingx-updates"
-)
-def create(ctxt, repo, suite, pocket):
+def list_packages(ctxt, repo, suite):
     check_user()
 
     """Make sure repo path exists"""
@@ -37,8 +32,4 @@ def create(ctxt, repo, suite, pocket):
         console.print(f"{suite} is not a valid suite")
         sys.exit(1)
 
-    if pocket is None:
-        console.print("You did not supply a pocket, using defaults (starlingx-updates")
-        sys.exit(1)
-
-    Repo(repo).create_repo(suite, pocket)
+    Repo(repo).list_packages(repo, suite)

@@ -19,3 +19,10 @@ def branch(f):
         "-b", "--branch",
         help="Ostree deployment"
     )(f)
+
+def repo(f):
+    return click.option(
+        "-r", "--repo",
+        help="Path to package repo"
+    )(f)
+

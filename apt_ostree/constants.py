@@ -5,7 +5,7 @@ WORKSPACE = pathlib.Path("/var/tmp/apt-ostree")
 OSTREE_PATH = pathlib.Path("/ostree")
 
 # support debian verisons
-SUITES = ["bullseye", "bookworm", "trixie"]
+SUITES = ["bookworm", "trixie"]
 
 # ADDITIONAL_PACKAGES
 PACKAGES = [
@@ -44,8 +44,6 @@ PACKAGES = [
     "bubblewrap",
     "python3-apt",
     "python3-rich",
-    "reprepro",
-    "nginx-light",
 ]
 
 ARTIFACT = "rootfs.tar.gz"

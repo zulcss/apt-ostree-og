@@ -12,6 +12,7 @@ from apt_ostree.cmd import options
 from apt_ostree.packages.package import Package
 from apt_ostree.packages.install import Install
 from apt_ostree.packages.uninstall import Uninstall
+from apt_ostree.system import check_user
 from apt_ostree.utils import run_command
 import click
 from rich.console import Console
@@ -22,9 +23,7 @@ pkg = Package()
 @click.group(help='Query debain package information in a deployment')
 @click.pass_context
 def package(ctxt):
-    if os.getuid() != 0:
-        console.print("You are not root!")
-        sys.exit(1)
+    check_user()
 
 @click.command(name="install", help="Install a debian package")
 @click.pass_context
