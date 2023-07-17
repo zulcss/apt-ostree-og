@@ -42,11 +42,12 @@ def run_sandbox_command(args, rootfs, env=None):
         console.print(error)
 
 
-def run_command(cmd):
+def run_command(cmd, cwd=None):
     try:
         return subprocess.run(
             cmd,
             encoding="utf8",
+            cwd=cwd,
             check=True)
     except subprocess.CalledProcessError as error:
         console.print(error)

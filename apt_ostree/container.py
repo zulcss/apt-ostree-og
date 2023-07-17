@@ -52,4 +52,4 @@ class Container(object):
         url = f"docker://{registry}/{name}"
         run_command(
             ["ostree-ext-cli", "container", "encapsulate", f"--repo={repo}",
-             branch, url])
+             branch, url], cwd=self.workspace_dir)
