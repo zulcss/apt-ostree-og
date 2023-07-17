@@ -23,8 +23,8 @@ exclude=["ucf",
          "polkitd",
          "debconf"]
 
-print("Creating /lib/tmpfiles.d/apt-ostree-autovar.conf")
-tempfile = open("lib/tmpfiles.d/apt-ostree-autovar.conf", "w")
+print("Creating /lib/tmpfiles.d/ostree-autovar.conf")
+tempfile = open("lib/tmpfiles.d/ostree-autovar.conf", "w")
 rootdir = pathlib.Path("/")
 
 tempfile.write("# This file is created by apt-ostree\n")

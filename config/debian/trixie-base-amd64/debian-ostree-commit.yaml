@@ -45,6 +45,9 @@ actions:
   - action: overlay
     description: configure ostree initramfs-tools
     source: overlay/ostree
+
+  - action: overlay
+    source: overlay/repo
  
   - action: apt
     description: install kernel
@@ -56,11 +59,15 @@ actions:
       - linux-image-arm64
       {{- end }}
 
+{{ if eq $architecture "amd64" }}
+{{ if eq $suite "trixie" }}
   - action: apt
     description: install bootloader
     recommends: true
     packages:
       - systemd-boot
+{{ end }}
+{{ end }}
 
   - action: apt
     description: install ostree
