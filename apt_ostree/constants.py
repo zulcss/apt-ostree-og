@@ -46,6 +46,7 @@ PACKAGES = [
     "python3-rich",
     "reprepro",
     "nginx-core",
+    "apt-listchanges",
 ]
 
 ARTIFACT = "rootfs.tar.gz"
