@@ -13,8 +13,9 @@ import subprocess
 import sys
 
 from apt_ostree import constants
-from apt_ostree.deployment import Deployment
+from apt_ostree.system import get_local_ip
 from apt_ostree.utils import run_command
+from apt_ostree.utils import run_sandbox_command
 from rich.console import Console
 
 import gi
@@ -36,7 +37,6 @@ def ostree(*args, _input=None, **kwargs):
 class Ostree(object):
     def __init__(self):
         self.console = Console()
-        self.deployment = Deployment()
         self.workspace_dir = constants.WORKSPACE
         self.deployment_dir = self.workspace_dir.joinpath("deployments")
 
@@ -61,5 +61,43 @@ class Ostree(object):
 
         run_command(
             ["ostree", "checkout", csum, self.deployment_dir])
-        self.deployment.populate_var()
+        self.populate_var()
         return self.deployment_dir
+
+    def populate_var(self):
+        host = self.deployment_dir.joinpath("usr/etc/hosts")
+        with open(host, "a") as outfile:
+            ipaddress = get_local_ip()
+            outfile.write(f"{ipaddress}\tarchive\n")
+        run_sandbox_command(
+            ["systemd-tmpfiles", "--create", "--remove", "--boot",
+             "--prefix=/var", "--prefix=/run"], self.deployment_dir)
+        self.deployment_dir.joinpath("var/cache/apt/partial").mkdir(
+            parents=True, exist_ok=True)
+        run_sandbox_command(
+            ["touch", "/var/lib/dpkg/lock-frontend"], self.deployment_dir)
+        run_sandbox_command(["apt-get", "update"], self.deployment_dir)
+        run_sandbox_command(["apt-get", "install", "-y",
+                            "locales"], self.deployment_dir)
+
+    def post_deployment(self):
+        shutil.rmtree(
+            self.deployment_dir.joinpath("etc"))
+        shutil.rmtree(
+            self.deployment_dir.joinpath("var"))
+        os.mkdir(os.path.join(self.deployment_dir, "var"), 0o755)
+
+        now = datetime.now()
+        now = now.strftime("%Y%m%d%H%M%S")
+        branch = f"debian/bookworm-local/{now}"
+
+        self.console.print(f"Committing new branch to {branch}")
+        run_command(
+            ["ostree", "commit", f"--branch={branch}",
+             str(self.deployment_dir)])
+        self.console.print(f"Deploying {branch}")
+        run_command(
+            ["ostree", "admin", "deploy", branch, "--retain-rollback",
+             "--karg-proc-cmdline"])
+        self.console.print(f"Updating grub")
+        run_command(["update-grub"])
