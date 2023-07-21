@@ -47,6 +47,7 @@ PACKAGES = [
     "reprepro",
     "nginx-core",
     "apt-listchanges",
+    "fuse3",
 ]
 
 ARTIFACT = "rootfs.tar.gz"
