@@ -75,8 +75,6 @@ class Ostree(object):
         run_sandbox_command(
             ["systemd-tmpfiles", "--create", "--remove", "--boot",
              "--prefix=/var", "--prefix=/run"], self.deployment_dir)
-        self.deployment_dir.joinpath("var/cache/apt/partial").mkdir(
-            parents=True, exist_ok=True)
         run_sandbox_command(
             ["touch", "/var/lib/dpkg/lock-frontend"], self.deployment_dir)
         run_sandbox_command(["apt-get", "update"], self.deployment_dir)
