@@ -5,14 +5,12 @@ SPDX-License-Identifier: Apache-2.0
 
 """
 
-import apt
 from datetime import datetime
 import os
 import pathlib
 import shutil
 import subprocess
 import sys
-import stat
 
 from apt_ostree import constants
 from apt_ostree.system import get_local_ip
@@ -41,10 +39,8 @@ class Ostree(object):
         self.console = Console()
         self.workspace_dir = constants.WORKSPACE
         self.deployment_dir = self.workspace_dir.joinpath("deployments")
-        self.rootfs = self.deployment_dir.joinpath("rootfs")
 
         self.deployment_dir.mkdir(parents=True, exist_ok=True)
-        self.rootfs.mkdir(parents=True, exist_ok=True)
 
     def current_deployment(self):
         """Deploy the current deployment to a temporary directory"""
@@ -65,6 +61,7 @@ class Ostree(object):
 
         run_command(
             ["ostree", "checkout", csum, self.deployment_dir])
+        self.populate_var()
         return self.deployment_dir
 
     def populate_var(self):
@@ -83,10 +80,7 @@ class Ostree(object):
 
     def post_deployment(self):
         shutil.rmtree(
-            self.deployment_dir.joinpath("usr/etc"))
-        shutil.move(
-            self.deployment_dir.joinpath("etc"),
-            self.deployment_dir.joinpath("usr/etc"))
+            self.deployment_dir.joinpath("etc"))
         shutil.rmtree(
             self.deployment_dir.joinpath("var"))
         os.mkdir(os.path.join(self.deployment_dir, "var"), 0o755)
@@ -105,14 +99,3 @@ class Ostree(object):
              "--karg-proc-cmdline"])
         self.console.print(f"Updating grub")
         run_command(["update-grub"])
-        #shutil.rmtree(self.deployment_dir)
-
-    def mount_rootfs(self):
-        self.console.print("Mounting rootfs")
-        run_command(
-            ["rofiles-fuse", self.deployment_dir, self.rootfs]
-        )
-
-    def umount_rootfs(self):
-        self.console.print("Umounting rootfs")
-        run_command(["fusermount", "-u", self.rootfs])

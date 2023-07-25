@@ -32,9 +32,6 @@ class Install:
         if click.confirm("Do you want to continue?"):
             self.deployment_dir = self.ostree.current_deployment()
 
-            self.ostree.mount_rootfs()
-            self.ostree.populate_var()
-
             grid = Table.grid(expand=True)
             grid.add_column()
             grid.add_column(justify="right")
@@ -45,10 +42,7 @@ class Install:
                 grid.add_row(f"Installed {package} {(self.version(package))}", "[bold magenta]COMPLETED [green]:heavy_check_mark:")
                 self.console.print(grid)
 
-
-            self.ostree.umount_rootfs()
             self.ostree.post_deployment()
-
 
         else:
             eerror("Terminating at your request")

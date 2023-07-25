@@ -25,7 +25,7 @@ def run_sandbox_command(args, rootfs, env=None):
             "--dev", "/dev",
             "--proc", "/proc",
             "--ro-bind", "/sys", "/sys",
-            "--symlink", f"{rootfs}/usr/etc", "/etc",
+            "--bind", f"{rootfs}/usr/etc", "/etc",
             "--share-net",
             "--unshare-pid",
             "--unshare-uts",
